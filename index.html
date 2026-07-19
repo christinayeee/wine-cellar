@@ -431,7 +431,7 @@ function save(){try{localStorage.setItem(LS,JSON.stringify(state));localStorage.
 function allWines(){return base.concat(state.added)}
 function wineById(id){return allWines().find(w=>w._id===id)}
 function isFinished(w){return state.finished.includes(w._id)}
-function isOpened(w){return state.opened.includes(w._id)}
+function isOpened(w){return state.opened.includes(w._id)||w.vest}
 function effLoc(w){if(isFinished(w))return null;if(w._id in state.moves)return state.moves[w._id];return w.loc;}
 function subKey(loc){if(!loc)return null;const a=loc.split('-');return a[0]+'-'+a[1];}
 function pOf(loc){return parseFloat(loc.split('-')[2]);}
