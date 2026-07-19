@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Christina's Wine Cellar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&display=swap');
+:root{--cream:#faf5ed;--cream-2:#f6efe1;--card:#fffdf8;--ink:#5a4a3e;--ink-soft:#9a8b7b;--faint:#c3b6a2;--line:#e6dcc8;--line-2:#efe7d7;--wine:#a44a5c;--wine-soft:#c98b93;--cork:#d8b878;--cork-2:#c49a55;--blush:#d98a86;--leaf:#9caa88;--lane-odd:#fff9f2;--lane-even:#fdf3e8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:'Cormorant Garamond',Georgia,'Songti SC',serif;-webkit-font-smoothing:antialiased;font-size:16px}
+.ui,button,input,select,textarea{font-family:'Inter',system-ui,'PingFang SC','Microsoft YaHei',sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 28px 90px}
+.hd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:flex-end;gap:16px}
+.brand h1{font-family:'Dancing Script',cursive;font-weight:700;font-size:58px;line-height:1;margin:0;color:var(--wine)}
+.brand .sub{font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-soft);margin:11px 0 0 4px;font-weight:500}
+.statline{display:flex;gap:26px}.statline .s{text-align:center}
+.statline .s b{display:block;font-family:'Dancing Script',cursive;font-weight:700;font-size:32px;line-height:1;color:var(--ink)}
+.statline .s span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.hero{text-align:center;margin:22px 0 20px}
+.hero .gart{display:block}.gart svg{width:240px;height:auto;display:block;margin:0 auto 4px}
+.hero .subtitle{font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.bar .lbl{font-style:italic;font-size:15px;color:var(--ink-soft)}
+.pills{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:3px;gap:2px;flex-wrap:wrap}
+.pills button{border:0;background:transparent;color:var(--ink-soft);font-size:12.5px;padding:6px 12px;border-radius:18px;cursor:pointer;transition:.15s;white-space:nowrap}
+.pills button:hover{color:var(--ink)}.pills button.on{background:var(--wine);color:#fff}
+.addbtn{border:1px solid var(--wine);background:var(--wine);color:#fff;border-radius:22px;padding:8px 15px;font-size:13px;cursor:pointer}.addbtn:hover{background:#873a48}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:7px 14px;min-width:170px}
+.search input{border:0;background:transparent;outline:none;font-size:13px;color:var(--ink);width:100%}.search input::placeholder{color:var(--faint)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:6px 0 12px;font-size:13px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}.sw{width:11px;height:11px;border-radius:50%}
+.hint{font-size:12.5px;font-style:italic;color:var(--faint);margin:0 0 22px}
+.cabinet{border:1.5px solid var(--line);border-radius:24px;padding:8px 16px 20px;background:linear-gradient(180deg,#fff 0%,transparent 200px)}
+.shelf{padding:10px 0 6px}.shelf+.shelf{border-top:1px dashed var(--line-2)}
+.shelf-hd{display:flex;align-items:baseline;gap:10px;margin:2px 0 6px 4px;flex-wrap:wrap}
+.shelf-hd .no{font-family:'Dancing Script',cursive;font-weight:700;font-size:38px;color:var(--wine);line-height:1;transform:rotate(-3deg);display:inline-block}
+.shelf-hd .ttl{font-style:italic;font-size:14px;color:var(--ink-soft);margin-left:2px}
+.shelf-hd .fill{margin-left:auto;font-size:12px;color:var(--faint);padding-right:6px}.shelf-hd .fill.over{color:var(--wine)}
+.cap-ctrl{display:flex;align-items:center;gap:5px;margin-left:10px}
+.cap-ctrl button{width:22px;height:22px;border:1px solid var(--line);background:var(--card);border-radius:6px;color:var(--ink-soft);font-size:14px;line-height:1;cursor:pointer;padding:0}.cap-ctrl button:hover{border-color:var(--wine-soft);color:var(--wine)}
+.cap-ctrl span{font-size:11px;color:var(--faint);min-width:20px;text-align:center}
+.lane{margin:6px 0;border-radius:14px;transition:background .12s,box-shadow .12s;padding:8px 6px 4px}
+.lane:nth-child(odd){background:var(--lane-odd)}
+.lane:nth-child(even){background:var(--lane-even)}
+.lane.drop-hi{background:rgba(164,74,92,.08)!important;box-shadow:inset 0 0 0 1.5px var(--wine-soft)}
+.lane .slots{display:flex;flex-wrap:nowrap;gap:8px;align-items:flex-end;padding:2px 6px}
+.shelfline{height:0;border-bottom:1.5px solid var(--line);margin:2px 12px 0;position:relative}
+.shelfline::before,.shelfline::after{content:"";position:absolute;bottom:-3px;width:1.5px;height:6px;background:var(--line)}
+.shelfline::before{left:0}.shelfline::after{right:0}
+.subtag{font-size:10px;letter-spacing:.08em;color:var(--faint);margin:4px 0 0 14px;text-transform:uppercase}
+.cell{flex:1 1 0;min-width:46px;max-width:160px;background:none;border:0;padding:2px 2px 0;cursor:grab;display:flex;flex-direction:column;align-items:center;transition:transform .18s ease}
+.cell.vert{max-width:78px}.cell:active{cursor:grabbing}
+.cell svg{width:100%;height:auto;display:block;overflow:visible;pointer-events:none}
+.cell.dragging{opacity:.35}.cell:hover{transform:translateY(-5px)}.cell.sel .glass{stroke:var(--wine);stroke-width:2.2}.cell.dim{opacity:.22}
+.cap{margin-top:6px;text-align:center;line-height:1.15;max-width:100%;pointer-events:none}
+.cap .nm{font-size:12px;font-weight:500;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cap .yr{font-family:'Inter';font-size:10px;color:var(--faint);margin-top:2px}
+.cap .rt{color:var(--wine);font-size:10px;letter-spacing:1px}
+.ph{flex:1 1 0;min-width:46px;max-width:160px}.ph.vert{max-width:78px}.ph svg{width:100%;height:auto;display:block}
+.zones{display:grid;grid-template-columns:1fr 300px;gap:22px;margin-top:30px;align-items:start}
+@media(max-width:820px){.zones{grid-template-columns:1fr}}
+.zone{border:1.5px dashed var(--line);border-radius:18px;padding:16px 18px;min-height:120px;transition:.12s}
+.zone.drop-hi{border-color:var(--wine-soft);background:rgba(164,74,92,.05)}
+.zone h3{font-family:'Dancing Script',cursive;font-weight:700;font-size:26px;margin:0 0 2px;color:var(--wine);display:flex;align-items:center;gap:8px}.zone h3 svg{width:34px;height:26px}
+.zone p{font-size:13px;font-style:italic;color:var(--ink-soft);margin:0 0 12px}
+.tray-row{display:flex;gap:12px;flex-wrap:wrap}.tray-row .cell{flex:0 0 110px}
+.bin{background:linear-gradient(180deg,#f0e6d0,#e8dabb);border:1.5px solid var(--cork-2);border-radius:14px 14px 20px 20px}
+.bin-corks{display:flex;flex-wrap:wrap;gap:9px;min-height:42px;align-items:center}
+.cork{cursor:pointer;transition:transform .14s}.cork:hover{transform:translateY(-3px) rotate(-4deg)}.cork svg{width:24px;height:32px;display:block}
+.bin .empty-note{font-size:12.5px;font-style:italic;color:var(--faint)}
+.vignette{display:flex;justify-content:center;margin:44px 0 6px;opacity:.9}.vignette svg{width:260px;height:160px}
+.foot{margin-top:8px;text-align:center;font-style:italic;font-size:14px;color:var(--ink-soft)}
+.scrim{position:fixed;inset:0;background:rgba(70,55,45,.34);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;padding:22px}
+.scrim.show{display:flex}
+.card{width:min(480px,95vw);max-height:92vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 30px 26px;position:relative;box-shadow:0 30px 70px rgba(90,74,62,.2);animation:rise .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card .x{position:absolute;right:16px;top:12px;border:0;background:transparent;color:var(--faint);font-size:24px;cursor:pointer}.card .x:hover{color:var(--ink)}
+.card .fam{display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+.card h2{font-family:'Dancing Script',cursive;font-weight:700;font-size:31px;line-height:1.04;margin:0;color:var(--wine)}
+.card .vint{font-size:15px;color:var(--ink-soft);margin:9px 0 16px}.card .vint b{font-family:'Dancing Script',cursive;font-size:23px;color:var(--ink);font-weight:700}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:13px 18px;border-top:1px solid var(--line);padding-top:15px}
+.meta label{display:block;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);margin-bottom:3px}.meta div{font-size:15px}
+.sect{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.sect .lab{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.sect p{margin:0;font-size:14.5px;line-height:1.55;color:var(--ink)}
+.sect .blend{font-family:'Inter';font-size:12px;color:var(--ink-soft);margin:2px 0 6px;font-style:italic}
+.vivino{margin-top:16px;border-top:1px solid var(--line);padding-top:15px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.vivino .vscore{display:flex;align-items:baseline;gap:9px}
+.vivino .vnum{font-family:'Dancing Script',cursive;font-weight:700;font-size:32px;color:var(--wine);line-height:1}
+.vivino .vlab{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.vivino .vlab b{display:block;font-family:'Inter';font-size:12px;color:var(--ink-soft);text-transform:none;letter-spacing:0;font-weight:400;font-style:italic}
+.mine{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.mine .lab{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}
+.mine .lab em{font-style:normal;text-transform:none;letter-spacing:0;color:var(--faint);font-size:11px}
+.stars{display:flex;align-items:center;gap:6px;margin-bottom:16px}
+.stars .st{font-size:26px;line-height:1;color:var(--line);cursor:pointer;transition:.12s;user-select:none}.stars .st.on{color:var(--wine)}.stars .st:hover{transform:scale(1.15)}
+.clear{font-size:11px;color:var(--faint);background:transparent;border:0;cursor:pointer;margin-left:8px}.clear:hover{color:var(--wine)}
+textarea{width:100%;min-height:70px;resize:vertical;border:1px solid var(--line);border-radius:14px;padding:11px 13px;font-size:14px;color:var(--ink);background:var(--cream);outline:none;line-height:1.5}
+textarea:focus{border-color:var(--wine-soft);background:#fff}
+.saved{font-size:11px;color:var(--faint);margin-top:6px;height:14px}
+.lnk{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:7px 13px;border-radius:16px;border:1px solid var(--line);color:var(--wine);text-decoration:none;background:var(--cream);white-space:nowrap;transition:.14s}.lnk:hover{background:var(--wine);color:#fff;border-color:var(--wine)}
+.cardbtns{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.btn2{font-size:12.5px;padding:8px 14px;border-radius:16px;border:1px solid var(--line);background:var(--cream);color:var(--ink);cursor:pointer}.btn2:hover{border-color:var(--wine-soft)}.btn2.wine{border-color:var(--wine);color:var(--wine)}
+.form h2{font-family:'Dancing Script',cursive;font-weight:700;font-size:32px;color:var(--wine);margin:0 0 4px}
+.form p{font-size:13px;font-style:italic;color:var(--ink-soft);margin:0 0 16px}
+.field{margin-bottom:12px}.field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px}
+.field input,.field select{width:100%;border:1px solid var(--line);border-radius:11px;padding:9px 12px;font-size:14px;color:var(--ink);background:var(--cream);outline:none}
+.field input:focus,.field select:focus{border-color:var(--wine-soft);background:#fff}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form .go{width:100%;margin-top:8px;border:0;background:var(--wine);color:#fff;border-radius:14px;padding:12px;font-size:14px;cursor:pointer}.form .go:hover{background:#873a48}
+#gate{position:fixed;inset:0;z-index:200;background:radial-gradient(120% 90% at 50% 0%,#fff7ea,var(--cream));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:26px;text-align:center}
+#gate.hide{display:none}
+#gate h1{font-family:'Dancing Script',cursive;font-weight:700;font-size:46px;color:var(--wine);margin:0}
+#gate .gsub{font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-soft);margin:6px 0 22px}
+#gate .grow{display:flex;gap:10px;align-items:center}
+#gate input{border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;font-size:16px;color:var(--ink);background:var(--card);outline:none;width:200px;text-align:center;letter-spacing:.2em}
+#gate input:focus{border-color:var(--wine-soft)}
+#gate button{border:0;background:var(--wine);color:#fff;border-radius:14px;padding:12px 20px;font-size:15px;cursor:pointer}
+#gate button:hover{background:#873a48}
+#gate .gerr{color:var(--wine);font-size:13px;height:18px;margin-top:12px;font-style:italic}
+.flag{display:inline-flex;vertical-align:middle}.flag svg{width:15px;height:10px;border:.5px solid rgba(90,74,62,.2);border-radius:2px}
+.info2{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.info2 .irow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
+.info2 .ilab{font-size:12.5px;color:var(--ink-soft)}
+.info2 .ival{font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.info2 .ival b{font-family:'Dancing Script',cursive;font-size:22px;color:var(--wine);font-weight:700}
+.info2 .ival em{font-style:italic;color:var(--faint);font-size:11px}
+.lnk.sm{padding:4px 9px;font-size:11px}
+.info2 .inote{font-size:10.5px;color:var(--faint);font-style:italic;margin-top:7px;line-height:1.45}
+.score-row{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.score-pill{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:8px 14px;text-align:center;min-width:90px}
+.score-pill .slab{font-size:10px;color:var(--faint);letter-spacing:.05em}
+.score-pill .sval{font-family:'Dancing Script',cursive;font-size:24px;color:var(--wine);font-weight:700;line-height:1}
+.sync-hint{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink-soft);margin:0 0 14px;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:14px;font-family:'Cormorant Garamond',Georgia,'Songti SC',serif;line-height:1.5}
+.sync-hint b{font-family:'Cormorant Garamond',Georgia,'Songti SC',serif;font-weight:700;color:var(--ink)}
+.io-group{display:flex;gap:6px;align-items:center}
+.io-btn{font-size:12.5px;padding:7px 13px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-family:'Cormorant Garamond',Georgia,'Songti SC',serif;transition:.14s}
+.io-btn:hover{border-color:var(--wine-soft);color:var(--wine)}
+</style>
+</head>
+<body>
+<div id="gate">
+  <!-- Cute capybara with wine glass -->
+  <div style="margin-bottom:14px">
+    <svg viewBox="0 0 140 110" width="140" height="110" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#5a4a3e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Body -->
+        <ellipse cx="70" cy="72" rx="38" ry="28" fill="#c4a882" fill-opacity="0.25"/>
+        <!-- Head -->
+        <ellipse cx="70" cy="38" rx="22" ry="20" fill="#c4a882" fill-opacity="0.3"/>
+        <!-- Ears -->
+        <ellipse cx="52" cy="26" rx="6" ry="5" fill="#c4a882" fill-opacity="0.35"/>
+        <ellipse cx="88" cy="26" rx="6" ry="5" fill="#c4a882" fill-opacity="0.35"/>
+        <!-- Small round ears inner -->
+        <ellipse cx="52" cy="27" rx="3" ry="2.5" fill="#d4b896" fill-opacity="0.5" stroke="none"/>
+        <ellipse cx="88" cy="27" rx="3" ry="2.5" fill="#d4b896" fill-opacity="0.5" stroke="none"/>
+        <!-- Eyes -->
+        <circle cx="60" cy="36" r="2.2" fill="#5a4a3e" stroke="none"/>
+        <circle cx="80" cy="36" r="2.2" fill="#5a4a3e" stroke="none"/>
+        <!-- Nose -->
+        <ellipse cx="70" cy="45" rx="4" ry="3" fill="#a44a5c" fill-opacity="0.6" stroke="none"/>
+        <!-- Mouth -->
+        <path d="M66,50 Q70,53 74,50" stroke-width="1"/>
+        <!-- Blush -->
+        <ellipse cx="54" cy="42" rx="4" ry="2.5" fill="#d98a86" fill-opacity="0.35" stroke="none"/>
+        <ellipse cx="86" cy="42" rx="4" ry="2.5" fill="#d98a86" fill-opacity="0.35" stroke="none"/>
+        <!-- Paws -->
+        <ellipse cx="46" cy="92" rx="7" ry="5" fill="#c4a882" fill-opacity="0.3"/>
+        <ellipse cx="94" cy="92" rx="7" ry="5" fill="#c4a882" fill-opacity="0.3"/>
+        <!-- Wine glass in right paw -->
+        <g transform="translate(88,58)">
+          <path d="M4,0 Q4,10 10,14 Q16,10 16,0" fill="#a44a5c" fill-opacity="0.35" stroke-width="1"/>
+          <line x1="10" y1="14" x2="10" y2="26" stroke-width="1"/>
+          <line x1="6" y1="26" x2="14" y2="26" stroke-width="1"/>
+        </g>
+        <!-- Tiny vine leaves -->
+        <path d="M32,60 Q28,56 32,52 Q36,56 32,60" fill="#9caa88" fill-opacity="0.4" stroke="none"/>
+        <path d="M108,56 Q104,52 108,48 Q112,52 108,56" fill="#9caa88" fill-opacity="0.4" stroke="none"/>
+      </g>
+    </svg>
+  </div>
+  <h1>Christina's Wine Cellar</h1>
+  <div class="gsub">请输入密码</div>
+  <div class="grow"><input id="gpw" type="password" inputmode="numeric" placeholder="密码" autocomplete="off"><button id="gbtn">进入 →</button></div>
+  <div class="gerr" id="gerr"></div>
+</div>
+<div class="wrap">
+  <div class="hd">
+    <div class="brand">
+      <div>
+        <h1>Christina's Wine Cellar</h1>
+        <div class="sub">Christina's Wine Cellar</div>
+      </div>
+    </div>
+    <div class="statline" id="statline"></div>
+  </div>
+  <div class="hero" id="heroArt">
+    <div class="gart">
+      <svg viewBox="0 0 320 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Girl figure -->
+          <circle cx="90" cy="42" r="11" fill="none"/>
+          <path d="M79 56 Q76 62 76 70 L76 92" fill="none"/>
+          <path d="M101 56 Q104 62 104 70 L104 92" fill="none"/>
+          <!-- pink dress -->
+          <path d="M79 56 L101 56 L108 80 Q110 86 104 86 L76 86 Q70 86 72 80 Z" fill="var(--blush)" fill-opacity=".2"/>
+          <!-- long hair -->
+          <path d="M79 42 Q72 48 72 58 Q72 68 76 74" fill="none" stroke-width="1.2"/>
+          <path d="M101 42 Q108 48 108 58 Q108 68 104 74" fill="none" stroke-width="1.2"/>
+          <!-- blush -->
+          <circle cx="84" cy="44" r="2" fill="var(--blush)" fill-opacity=".35" stroke="none"/>
+          <circle cx="96" cy="44" r="2" fill="var(--blush)" fill-opacity=".35" stroke="none"/>
+          <!-- wine glass (right hand) -->
+          <path d="M108 58 L114 70 M102 70 L120 70" fill="none"/>
+          <ellipse cx="111" cy="70" rx="6" ry="2" fill="var(--wine)" fill-opacity=".2"/>
+          <path d="M111 72 L111 78" fill="none"/>
+          <!-- Boy figure -->
+          <circle cx="230" cy="42" r="11" fill="none"/>
+          <path d="M219 56 Q216 62 216 70 L216 92" fill="none"/>
+          <path d="M241 56 Q244 62 244 70 L244 92" fill="none"/>
+          <!-- blue shirt -->
+          <path d="M219 56 L241 56 L246 78 Q248 84 242 84 L218 84 Q212 84 214 78 Z" fill="#8a9eb5" fill-opacity=".2"/>
+          <!-- short hair -->
+          <path d="M219 36 Q230 28 241 36" fill="none" stroke-width="1.2"/>
+          <!-- blush -->
+          <circle cx="224" cy="44" r="2" fill="var(--blush)" fill-opacity=".35" stroke="none"/>
+          <circle cx="236" cy="44" r="2" fill="var(--blush)" fill-opacity=".35" stroke="none"/>
+          <!-- wine glass (left hand) -->
+          <path d="M206 58 L200 70 M194 70 L212 70" fill="none"/>
+          <ellipse cx="203" cy="70" rx="6" ry="2" fill="var(--wine)" fill-opacity=".2"/>
+          <path d="M203 72 L203 78" fill="none"/>
+          <!-- Clinking effect -->
+          <path d="M120 64 L126 58 M200 64 L194 58" fill="none" stroke-opacity=".4"/>
+          <!-- Heart above -->
+          <path d="M160 20 C160 14 154 10 150 14 C146 18 150 24 160 32 C170 24 174 18 170 14 C166 10 160 14 160 20 Z" fill="var(--blush)" fill-opacity=".45" stroke="var(--wine)" stroke-width="1.2"/>
+          <!-- Bottom decorations -->
+          <path d="M20 110 Q35 95 50 110 T80 110" fill="none" stroke-opacity=".2"/>
+          <path d="M240 110 Q255 95 270 110 T300 110" fill="none" stroke-opacity=".2"/>
+          <circle cx="28" cy="102" r="2.5" fill="var(--blush)" fill-opacity=".3" stroke="none"/>
+          <circle cx="42" cy="106" r="2" fill="var(--wine)" fill-opacity=".2" stroke="none"/>
+          <circle cx="268" cy="102" r="2.5" fill="var(--blush)" fill-opacity=".3" stroke="none"/>
+          <circle cx="282" cy="106" r="2" fill="var(--wine)" fill-opacity=".2" stroke="none"/>
+          <!-- small hearts scattered -->
+          <path d="M50 85 C50 82 47 80 45 82 C43 84 45 87 50 90 C55 87 57 84 55 82 C53 80 50 82 50 85 Z" fill="var(--blush)" fill-opacity=".25" stroke="none"/>
+          <path d="M270 85 C270 82 267 80 265 82 C263 84 265 87 270 90 C275 87 277 84 275 82 C273 80 270 82 270 85 Z" fill="var(--blush)" fill-opacity=".25" stroke="none"/>
+        </g>
+      </svg>
+    </div>
+    <div class="subtitle">A COZY LITTLE CELLAR</div>
+  </div>
+
+  <div class="bar">
+    <span class="lbl">国家</span>
+    <span class="pills" id="fCountry"></span>
+    <span class="lbl" style="margin-left:10px">评分</span>
+    <span class="pills" id="fRate">
+      <button data-r="all" class="on">全部</button>
+      <button data-r="0">未评</button>
+      <button data-r="3">≥3星</button>
+      <button data-r="4">≥4星</button>
+    </span>
+    <span class="lbl" style="margin-left:10px">开瓶</span>
+    <span class="pills" id="fOpen">
+      <button data-o="all" class="on">全部</button>
+      <button data-o="open">已开瓶</button>
+      <button data-o="closed">未开瓶</button>
+    </span>
+    <button class="addbtn" id="addBtn">＋ 新增酒瓶</button>
+
+    <div class="search"><input id="q" placeholder="搜酒庄/产区/品种/年份"></div>
+  </div>
+  <div class="legend" id="legend"></div>
+  <p class="hint">💡 拖拽酒瓶调整位置；拖进「已喝完」变酒塞；点击酒瓶查看详情；「标记已开瓶」的酒瓶会显示红色标签。</p>
+  <div class="cabinet-wrap">
+    <div class="cabinet" id="shelves"></div>
+  </div>
+  <div class="zones">
+    <div class="zone" id="trayZone" data-drop="tray"><h3>还没归位的</h3><p>新加的、或没位置的酒都在这儿——拖进上面的柜子摆好。</p><div class="tray-row" id="trayList"></div></div>
+    <div class="zone bin" id="binZone" data-drop="bin"><h3>已喝完
+      <svg viewBox="0 0 34 26" fill="none" stroke="var(--wine)" stroke-width="1.3" stroke-linecap="round"><path d="M8 4 C8 12 12 15 14 15 C16 15 20 12 20 4 Z" fill="var(--wine)" fill-opacity=".2"/><path d="M8 4 L20 4 M14 15 L14 21 M9 22 L19 22"/><path d="M24 6 C24 12 27 14 28.5 14 C30 14 33 12 33 6 Z" fill="var(--wine)" fill-opacity=".15"/><path d="M28.5 14 L28.5 19 M25 20 L32 20"/></svg></h3>
+      <p>喝完的拖进来，留个酒塞做纪念。点酒塞可放回。</p><div class="bin-corks" id="binList"></div></div>
+  </div>
+  <!-- data & backup -->
+  <div class="data-footer" style="margin-top:40px;padding-top:24px;border-top:2px dashed var(--line);text-align:center">
+    <div style="font-family:'Dancing Script',cursive;font-size:22px;color:var(--wine);margin-bottom:10px">⋯ Data & Backup ⋯</div>
+    <div class="sync-hint" id="syncHint" style="display:inline-flex;max-width:520px;margin:0 auto 10px">
+      <span>💡</span>
+      <span>数据已同步到<b>飞书多维表格</b>云端。<a href="https://ncnxe7st5g3j.feishu.cn/base/IfzebhcDnaxdyUszNYCc2iVon7f" target="_blank" style="color:var(--wine);text-decoration:underline;">→ 在飞书查看酒柜清单</a> · 换设备时可用「导出备份」迁移本地状态</span>
+    </div>
+    <div class="io-group" style="justify-content:center">
+      <button class="io-btn" id="exportBtn">↓ 导出备份</button>
+      <button class="io-btn" id="importBtn">↑ 导入恢复</button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+  </div>
+
+  <div class="vignette">
+    <svg viewBox="0 0 260 160" fill="none" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="130" cy="122" rx="110" ry="16" fill="#fff" fill-opacity=".4"/>
+      <path d="M50 128 L54 158 M210 128 L206 158 M30 132 Q130 150 230 132"/>
+      <path d="M70 126 L70 70 Q70 56 78 50 L78 36 L92 36 L92 50 Q100 56 100 70 L100 126 Z" fill="#7d2b34" fill-opacity=".28"/>
+      <rect x="81" y="26" width="8" height="10" rx="2" fill="var(--cork)" fill-opacity=".55"/>
+      <rect x="76" y="82" width="18" height="22" rx="2" fill="#fff" fill-opacity=".5"/>
+      <path d="M120 126 L120 96 M106 80 C106 92 112 96 120 96 C128 96 134 92 134 80 Z" fill="var(--wine)" fill-opacity=".22"/>
+      <path d="M106 80 L134 80 M110 126 L130 126"/>
+      <path d="M170 126 L166 88 L188 88 L164 108 Z" fill="#fff" fill-opacity=".45"/>
+      <path d="M157 88 C157 78 157 72 157 66" stroke="var(--leaf)" stroke-width="1.2"/>
+      <path d="M150 84 C144 80 142 74 143 68 C150 70 153 76 154 82" stroke="var(--leaf)" stroke-width="1.1" fill="var(--leaf)" fill-opacity=".25"/>
+      <path d="M164 82 C170 78 172 72 171 66 C165 68 161 73 160 80" stroke="var(--leaf)" stroke-width="1.1" fill="var(--leaf)" fill-opacity=".25"/>
+      <circle cx="157" cy="60" r="6" fill="var(--blush)" fill-opacity=".5" stroke="var(--wine)" stroke-width="1.2"/>
+      <circle cx="147" cy="64" r="4" fill="#c9ab55" fill-opacity=".5" stroke="var(--wine)" stroke-width="1"/>
+      <circle cx="168" cy="64" r="4" fill="var(--blush)" fill-opacity=".4" stroke="var(--wine)" stroke-width="1"/>
+      <g stroke="#5f3a5c" stroke-width="1"><circle cx="196" cy="104" r="3" fill="#5f3a5c" fill-opacity=".3"/><circle cx="202" cy="106" r="3" fill="#5f3a5c" fill-opacity=".3"/><circle cx="199" cy="110" r="3" fill="#5f3a5c" fill-opacity=".3"/></g>
+      <g stroke="var(--capy-dark)" stroke-width="1.1" stroke-linecap="round">
+        <ellipse cx="36" cy="128" rx="14" ry="9" fill="var(--capy)" fill-opacity=".55"/>
+        <ellipse cx="48" cy="122" rx="7" ry="5" fill="var(--capy)" fill-opacity=".6"/>
+        <ellipse cx="44" cy="116" rx="2.5" ry="1.5" fill="var(--capy-dark)" fill-opacity=".4"/>
+        <ellipse cx="52" cy="116" rx="2.5" ry="1.5" fill="var(--capy-dark)" fill-opacity=".4"/>
+        <circle cx="45" cy="120" r=".7" fill="var(--capy-dark)"/>
+        <circle cx="51" cy="120" r=".7" fill="var(--capy-dark)"/>
+        <path d="M42 126 Q46 128 50 126" stroke-width=".8"/>
+      </g>
+    </svg>
+  </div>
+  <div class="foot">Christina's Wine Cellar · 本地操作实时响应 · <a href="https://ncnxe7st5g3j.feishu.cn/base/IfzebhcDnaxdyUszNYCc2iVon7f" target="_blank" style="color:var(--wine);text-decoration:underline;">飞书多维表格云端备份</a> · 拖拽在电脑上体验最佳</div>
+</div>
+
+<div class="scrim" id="scrim"><div class="card" id="card"></div></div>
+<div class="scrim" id="formScrim"><div class="card form" id="formCard"></div></div>
+<script>
+const WINES = [{"winery":"Chateau Lafite Rothschild","vintage":2001,"loc":"1-1-1","grape":"Cabernet Sauvignon","grapeRaw":"86.5% Cabernet Sauvignon, 13.5% Merlot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":900,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":1975,"loc":"1-1-2","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 16% Merlot, 9% Cabernet Franc","region":"Pauillac","country":"France","rp":91,"ws":90,"price":1800,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":1986,"loc":"1-1-3","grape":"Cabernet Sauvignon","grapeRaw":"69% Cabernet Sauvignon, 16% Cabernet Franc, 15% Merlot","region":"Pauillac","country":"France","rp":100,"ws":98,"price":2200,"vivino":4.7,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":1986,"loc":"1-1-4","grape":"Cabernet Sauvignon","grapeRaw":"69% Cabernet Sauvignon, 16% Cabernet Franc, 15% Merlot","region":"Pauillac","country":"France","rp":100,"ws":98,"price":2200,"vivino":4.7,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":1998,"loc":"1-1-5","grape":"Cabernet Sauvignon","grapeRaw":"81% Cabernet Sauvignon, 19% Merlot","region":"Pauillac","country":"France","rp":98,"ws":96,"price":1200,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":1999,"loc":"1-1-6","grape":"Cabernet Sauvignon","grapeRaw":"74% Cabernet Sauvignon, 18.5% Merlot, 6% Cabernet Franc, 1.5% Petit Verdot","region":"Pauillac","country":"France","rp":95,"ws":93,"price":1100,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Bennati Cerasum Riserva della Famiglia Bennati Amarone della Valpolicella Riserva DOCG","vintage":2012,"loc":"1-2-1","grape":"Corvina","grapeRaw":"55% Corvina, 25% Rondinella, 15% Corvinone, 5% Molinara","region":"Pauillac","country":"France","rp":91,"ws":90,"price":50,"vivino":4.2,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":2001,"loc":"1-2-2","grape":"Cabernet Sauvignon","grapeRaw":"86.5% Cabernet Sauvignon, 13.5% Merlot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":900,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":2001,"loc":"1-2-3","grape":"Cabernet Sauvignon","grapeRaw":"86.5% Cabernet Sauvignon, 13.5% Merlot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":900,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":2012,"loc":"1-2-4","grape":"Cabernet Sauvignon","grapeRaw":"91% Cabernet Sauvignon, 8.5% Merlot, 0.5% Petit Verdot","region":"Pauillac","country":"France","rp":95,"ws":94,"price":850,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Chateau Petrus","vintage":1986,"loc":"1-2-5","grape":"Merlot","grapeRaw":"95% Merlot, 5% Cabernet Franc","region":"Pomerol","country":"France","rp":96,"ws":95,"price":3200,"vivino":4.7,"vest":false,"bottle":"750ml"},{"winery":"Chateau Latour","vintage":1999,"loc":"2-1-1","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 20% Merlot, 4% Cabernet Franc, 1% Petit Verdot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":800,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Latour","vintage":1999,"loc":"2-1-2","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 20% Merlot, 4% Cabernet Franc, 1% Petit Verdot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":800,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":1983,"loc":"2-1-3","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 15% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":91,"ws":90,"price":600,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":1983,"loc":"2-1-4","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 15% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":91,"ws":90,"price":600,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":1983,"loc":"2-1-5","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 15% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":91,"ws":90,"price":600,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":1983,"loc":"2-1-6","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 15% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":91,"ws":90,"price":600,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Latour","vintage":1999,"loc":"2-2-1","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 20% Merlot, 4% Cabernet Franc, 1% Petit Verdot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":800,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Le Pin","vintage":1995,"loc":"2-2-2","grape":"Merlot","grapeRaw":"92% Merlot, 8% Cabernet Franc","region":"Pomerol","country":"France","rp":95,"ws":94,"price":3800,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":1994,"loc":"2-2-3","grape":"Cabernet Sauvignon","grapeRaw":"80% Cabernet Sauvignon, 10% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":92,"ws":91,"price":650,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":1983,"loc":"2-2-4","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 15% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":91,"ws":90,"price":600,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":2011,"loc":"2-2-5","grape":"Cabernet Sauvignon","grapeRaw":"90% Cabernet Sauvignon, 7% Merlot, 3% Cabernet Franc","region":"Pauillac","country":"France","rp":93,"ws":92,"price":550,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Brane-Cantenac","vintage":2020,"loc":"2-2-6","grape":"Cabernet Sauvignon","grapeRaw":"70% Cabernet Sauvignon, 26% Merlot, 2% Cabernet Franc, 1% Carmenere, 1% Petit Verdot","region":"Margaux","country":"France","rp":95,"ws":94,"price":100,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Premier Grand Cru","vintage":1989,"loc":"3-1-1","grape":"Cabernet Sauvignon","grapeRaw":"89% Cabernet Sauvignon, 6% Merlot, 4% Cabernet Franc, 1% Petit Verdot","region":"Margaux","country":"France","rp":90,"ws":89,"price":700,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Premier Grand Cru","vintage":1989,"loc":"3-1-2","grape":"Cabernet Sauvignon","grapeRaw":"89% Cabernet Sauvignon, 6% Merlot, 4% Cabernet Franc, 1% Petit Verdot","region":"Margaux","country":"France","rp":90,"ws":89,"price":700,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Pavillon Rouge","vintage":2005,"loc":"3-1-3","grape":"Cabernet Sauvignon","grapeRaw":"48% Cabernet Sauvignon, 48% Merlot, 4% Petit Verdot","region":"Margaux","country":"France","rp":90,"ws":89,"price":280,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Pavillon Rouge","vintage":2005,"loc":"3-1-4","grape":"Cabernet Sauvignon","grapeRaw":"48% Cabernet Sauvignon, 48% Merlot, 4% Petit Verdot","region":"Margaux","country":"France","rp":90,"ws":89,"price":280,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Pavillon Rouge","vintage":2005,"loc":"3-1-5","grape":"Cabernet Sauvignon","grapeRaw":"48% Cabernet Sauvignon, 48% Merlot, 4% Petit Verdot","region":"Margaux","country":"France","rp":90,"ws":89,"price":280,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Chateau Pichon-Longueville Comtesse de Lalande","vintage":1986,"loc":"3-1-6","grape":"Cabernet Sauvignon","grapeRaw":"65% Cabernet Sauvignon, 25% Merlot, 7% Cabernet Franc, 3% Petit Verdot","region":"Pauillac","country":"France","rp":95,"ws":94,"price":450,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Latour","vintage":1999,"loc":"3-2-1","grape":"Cabernet Sauvignon","grapeRaw":"75% Cabernet Sauvignon, 20% Merlot, 4% Cabernet Franc, 1% Petit Verdot","region":"Pauillac","country":"France","rp":94,"ws":93,"price":800,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Premier Grand Cru","vintage":2007,"loc":"3-2-2","grape":"Cabernet Sauvignon","grapeRaw":"87% Cabernet Sauvignon, 11% Merlot, 2% Cabernet Franc","region":"Margaux","country":"France","rp":92,"ws":91,"price":650,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Margaux Pavillon Rouge","vintage":2005,"loc":"3-2-3","grape":"Cabernet Sauvignon","grapeRaw":"48% Cabernet Sauvignon, 48% Merlot, 4% Petit Verdot","region":"Margaux","country":"France","rp":90,"ws":89,"price":280,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"东风酒庄陶罐自然甜红葡萄酒","vintage":2020,"loc":"3-2-4","grape":"Other","grapeRaw":"本土山葡萄品种混酿（具体品种未标注）","region":"洛阳","country":"China","price":30,"vivino":3.8,"vest":false,"bottle":"750ml"},{"winery":"Longview Estate White Diamond","vintage":2016,"loc":"3-2-5","grape":"Sauvignon Blanc","grapeRaw":"50% Sauvignon Blanc, 30% Chardonnay, 20% Pinot Gris","region":"Northland","country":"New Zealand","rp":88,"ws":87,"price":20,"vivino":3.9,"vest":false,"bottle":"750ml"},{"winery":"Dalla Valle Maya","vintage":2020,"loc":"3-2-6","grape":"Cabernet Sauvignon","grapeRaw":"60% Cabernet Sauvignon, 40% Cabernet Franc","region":"Oakville","country":"USA","rp":97,"ws":96,"price":600,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Chateau Haut-Brion","vintage":1999,"loc":"4-1-1","grape":"Merlot","grapeRaw":"60% Merlot, 28% Cabernet Sauvignon, 12% Cabernet Franc","region":"Pessac-Leognan (Graves)","country":"France","rp":93,"ws":94,"price":750,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Haut-Brion","vintage":2007,"loc":"4-1-2","grape":"Cabernet Sauvignon","grapeRaw":"43% Merlot, 44% Cabernet Sauvignon, 13% Cabernet Franc","region":"Pessac-Leognan (Graves)","country":"France","rp":94,"ws":93,"price":700,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Haut-Brion","vintage":2007,"loc":"4-1-2","grape":"Cabernet Sauvignon","grapeRaw":"43% Merlot, 44% Cabernet Sauvignon, 13% Cabernet Franc","region":"Pessac-Leognan (Graves)","country":"France","rp":94,"ws":93,"price":700,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Talbot","vintage":1995,"loc":"4-1-4","grape":"Cabernet Sauvignon","grapeRaw":"66% Cabernet Sauvignon, 26% Merlot, 5% Petit Verdot, 3% Cabernet Franc","region":"Saint-Julien","country":"France","rp":89,"ws":88,"price":90,"vivino":4.2,"vest":false,"bottle":"750ml"},{"winery":"Chateau Cos d'Estournel","vintage":1996,"loc":"4-1-5","grape":"Cabernet Sauvignon","grapeRaw":"65% Cabernet Sauvignon, 35% Merlot","region":"Saint-Estephe","country":"France","rp":95,"ws":94,"price":280,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Barons de Rothschild Lafite Collection Reserve Speciale","vintage":2008,"loc":"4-1-6","grape":"Merlot","grapeRaw":"60% Merlot, 40% Cabernet Sauvignon","region":"Pauillac","country":"France","rp":88,"ws":87,"price":45,"vivino":4.0,"vest":false,"bottle":"750ml"},{"winery":"Chateau Haut-Brion","vintage":1999,"loc":"4-2-1","grape":"Merlot","grapeRaw":"60% Merlot, 28% Cabernet Sauvignon, 12% Cabernet Franc","region":"Pessac-Leognan (Graves)","country":"France","rp":93,"ws":94,"price":750,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Haut-Brion","vintage":2007,"loc":"4-2-2","grape":"Cabernet Sauvignon","grapeRaw":"43% Merlot, 44% Cabernet Sauvignon, 13% Cabernet Franc","region":"Pessac-Leognan (Graves)","country":"France","rp":94,"ws":93,"price":700,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Haut-Brion","vintage":2007,"loc":"4-2-3","grape":"Cabernet Sauvignon","grapeRaw":"43% Merlot, 44% Cabernet Sauvignon, 13% Cabernet Franc","region":"Pessac-Leognan (Graves)","country":"France","rp":94,"ws":93,"price":700,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Los Vascos Cromas Gran Reserva","vintage":2021,"loc":"4-2-4","grape":"Cabernet Franc","grapeRaw":"100% Cabernet Franc","region":"Colchagua Valley, Chile","country":"Chile","rp":89,"ws":88,"price":25,"vivino":4.0,"vest":false,"bottle":"750ml"},{"winery":"Chateau Mouton Rothschild","vintage":2014,"loc":"4-2-5","grape":"Cabernet Sauvignon","grapeRaw":"81% Cabernet Sauvignon, 16% Merlot, 3% Cabernet Franc","region":"Pauillac","country":"France","rp":95,"ws":94,"price":500,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Canon","vintage":2020,"loc":"5-1-1","grape":"Merlot","grapeRaw":"68% Merlot, 32% Cabernet Franc","region":"Saint-Emilion","country":"France","rp":94,"ws":93,"price":120,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau Leovvile Poyferre","vintage":2020,"loc":"5-1-2","grape":"Cabernet Sauvignon","grapeRaw":"64% Cabernet Sauvignon, 31% Merlot, 3% Cabernet Franc, 2% Petit Verdot","region":"Saint-Julien","country":"France","rp":96,"ws":95,"price":120,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Leovville Barton","vintage":2020,"loc":"5-1-3","grape":"Cabernet Sauvignon","grapeRaw":"85.5% Cabernet Sauvignon, 14.5% Merlot","region":"Saint-Julien","country":"France","rp":95,"ws":94,"price":110,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Valandraud","vintage":2020,"loc":"5-1-4","grape":"Merlot","grapeRaw":"90% Merlot, 7% Cabernet Franc, 3% Cabernet Sauvignon","region":"Saint-Emilion","country":"France","rp":95,"ws":94,"price":200,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Chateau Leoville Las Cases","vintage":1986,"loc":"5-1-5","grape":"Cabernet Sauvignon","grapeRaw":"66% Cabernet Sauvignon, 19% Merlot, 11% Cabernet Franc, 4% Petit Verdot","region":"Saint-Julien","country":"France","rp":96,"ws":95,"price":420,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lynch Bages","vintage":1985,"loc":"5-1-6","grape":"Cabernet Sauvignon","grapeRaw":"78% Cabernet Sauvignon, 13% Merlot, 7% Cabernet Franc, 2% Petit Verdot","region":"Pauillac","country":"France","rp":90,"ws":89,"price":350,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Canon La Gaffeliere","vintage":2020,"loc":"5-2-1","grape":"Merlot","grapeRaw":"55% Merlot, 30% Cabernet Franc, 15% Cabernet Sauvignon","region":"Saint-Emilion","country":"France","rp":94,"ws":93,"price":85,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Blankiet","vintage":2012,"loc":"5-2-2","grape":"Cabernet Sauvignon","grapeRaw":"81% Cabernet Sauvignon, 16.1% Merlot, 2.1% Cabernet Franc, 0.8% Petit Verdot","region":"Yountville","country":"USA","rp":94,"ws":93,"price":180,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Chateau La Couspaude","vintage":2020,"loc":"5-2-3","grape":"Merlot","grapeRaw":"75% Merlot, 20% Cabernet Franc, 5% Cabernet Sauvignon","region":"Saint-Emilion","country":"France","rp":91,"ws":90,"price":60,"vivino":4.1,"vest":false,"bottle":"750ml"},{"winery":"Ridge Monte Bello","vintage":2012,"loc":"5-2-4","grape":"Cabernet Sauvignon","grapeRaw":"64% Cabernet Sauvignon, 22% Merlot, 8% Cabernet Franc, 4% Petit Verdot","region":"Santa Cruz Mountains","country":"USA","rp":96,"ws":95,"price":250,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Chateau Leoville Las Cases","vintage":1986,"loc":"5-2-5","grape":"Cabernet Sauvignon","grapeRaw":"66% Cabernet Sauvignon, 19% Merlot, 11% Cabernet Franc, 4% Petit Verdot","region":"Saint-Julien","country":"France","rp":96,"ws":95,"price":420,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Stony Hill Chardonnay","vintage":2020,"loc":"5-2-6","grape":"Chardonnay","grapeRaw":"100% Chardonnay","region":"Spring Mountain District, Napa Valley","country":"USA","rp":93,"ws":92,"price":60,"vivino":4.0,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lascombes","vintage":2020,"loc":"5-3-1","grape":"Merlot","grapeRaw":"50% Merlot, 45% Cabernet Sauvignon, 5% Petit Verdot","region":"Margaux","country":"France","rp":93,"ws":92,"price":85,"vivino":4.2,"vest":false,"bottle":"750ml"},{"winery":"Chateau Lafite Rothschild","vintage":2006,"loc":"5-3-2","grape":"Cabernet Sauvignon","grapeRaw":"82% Cabernet Sauvignon, 16% Merlot, 2% Cabernet Franc","region":"Pauillac","country":"France","rp":95,"ws":94,"price":1100,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Chateau Leoville Las Cases","vintage":1986,"loc":"5-3-3","grape":"Cabernet Sauvignon","grapeRaw":"66% Cabernet Sauvignon, 19% Merlot, 11% Cabernet Franc, 4% Petit Verdot","region":"Saint-Julien","country":"France","rp":96,"ws":95,"price":420,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Benfolds Bin 707","vintage":2019,"loc":"5-3-4","grape":"Cabernet Sauvignon","grapeRaw":"100% Cabernet Sauvignon","region":"Barossa Valley, Coonawarra, Padthaway & Wrattonbully","country":"Australia","rp":95,"ws":94,"price":150,"vivino":4.4,"vest":false,"bottle":"750ml"},{"winery":"Benfolds Bin 407","vintage":2019,"loc":"5-3-5","grape":"Cabernet Sauvignon","grapeRaw":"100% Cabernet Sauvignon","region":"Coonawarra, Wrattonbully, Padthaway, Barossa Valley, McLaren Vale","country":"Australia","rp":93,"ws":92,"price":90,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Clos du Val Estate Grown Cabernet Franc","vintage":2019,"loc":"6-1-1","grape":"Cabernet Franc","grapeRaw":"100% Cabernet Franc","region":"Stags Leap District","country":"USA","rp":88,"ws":87,"price":55,"vivino":4.0,"vest":false,"bottle":"750ml"},{"winery":"Joseph Phelps Cabernet Sauvignon","vintage":2019,"loc":"6-1-2","grape":"Cabernet Sauvignon","grapeRaw":"94% Cabernet Sauvignon, 3% Cabernet Franc, 2% Merlot, 1% Malbec","region":"Stags Leap District","country":"USA","rp":92,"ws":91,"price":80,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Realm The Bard","vintage":2018,"loc":"6-1-3","grape":"Cabernet Sauvignon","grapeRaw":"85% Cabernet Sauvignon, 6% Cabernet Franc, 5% Merlot, 2% Petit Verdot, 2% Petite Sirah","region":"Napa Valley (multi-vineyard: Stags Leap, Oakville, Coombsville)","country":"USA","rp":97,"ws":96,"price":350,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Realm The Bard","vintage":2018,"loc":"6-1-4","grape":"Cabernet Sauvignon","grapeRaw":"85% Cabernet Sauvignon, 6% Cabernet Franc, 5% Merlot, 2% Petit Verdot, 2% Petite Sirah","region":"Napa Valley (multi-vineyard: Stags Leap, Oakville, Coombsville)","country":"USA","rp":97,"ws":96,"price":350,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Realm The Tempest","vintage":2019,"loc":"6-1-5","grape":"Merlot","grapeRaw":"80% Merlot, 20% Cabernet Sauvignon","region":"Napa Valley (Oak Knoll & Coombsville)","country":"USA","rp":96,"ws":95,"price":280,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Stag's Leap Fay","vintage":2008,"loc":"6-2-1","grape":"Cabernet Sauvignon","grapeRaw":"100% Cabernet Sauvignon","region":"Stags Leap District","country":"USA","rp":92,"ws":91,"price":85,"vivino":4.3,"vest":false,"bottle":"750ml"},{"winery":"Harlan The Maiden","vintage":2019,"loc":"6-2-2","grape":"Cabernet Sauvignon","grapeRaw":"70% Cabernet Sauvignon, 20% Merlot, 8% Cabernet Franc, 2% Petit Verdot","region":"Oakville, Napa Valley","country":"USA","rp":94,"ws":93,"price":380,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Saxum G2","vintage":2015,"loc":"6-2-3","grape":"Grenache","grapeRaw":"56% Grenache, 44% Mourvedre","region":"Pasa Robles","country":"USA","rp":96,"ws":95,"price":180,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Realm Moonracer","vintage":2017,"loc":"6-2-4","grape":"Cabernet Sauvignon","grapeRaw":"85% Cabernet Sauvignon, 6% Cabernet Franc, 6% Merlot, 3% Petit Verdot","region":"Stags Leap District, Napa Valley","country":"USA","rp":97,"ws":96,"price":320,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Realm The Tempest","vintage":2021,"loc":"6-2-5","grape":"Merlot","grapeRaw":"67% Merlot, 23% Cabernet Sauvignon, 10% Cabernet Franc","region":"Napa Valley (Oak Knoll & Coombsville)","country":"USA","rp":96,"ws":95,"price":280,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"Stag's Leap Cask 23","vintage":2009,"loc":"6-2-6","grape":"Cabernet Sauvignon","grapeRaw":"100% Cabernet Sauvignon","region":"Stags Leap District","country":"USA","rp":95,"ws":94,"price":200,"vivino":4.5,"vest":false,"bottle":"750ml"},{"winery":"BOND Quella","vintage":2014,"loc":"7-1-1","grape":"Cabernet Sauvignon","grapeRaw":"100% Cabernet Sauvignon","region":"Coombsville & Oakville, Napa Valley","country":"USA","rp":96,"ws":95,"price":700,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"BOND St. Eden","vintage":2012,"loc":"7-1-2","grape":"Cabernet Sauvignon","grapeRaw":"100% Cabernet Sauvignon","region":"Oakville, Napa Valley","country":"USA","rp":97,"ws":96,"price":700,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Sine Qua Non Ratsel 16","vintage":2016,"loc":"7-1-3","grape":"Syrah","grapeRaw":"81% Syrah, 7% Mourvedre, 5% Petite Sirah, 2.5% Grenache, 4.5% Viognier","region":"Sta. Rita Hills & Ventura County","country":"USA","rp":98,"ws":97,"price":450,"vivino":4.7,"vest":false,"bottle":"750ml"},{"winery":"Sine Qua Non The Hated Hunter","vintage":2017,"loc":"7-1-4","grape":"Syrah","grapeRaw":"82.4% Syrah, 7.8% Petite Sirah, 5.2% Mourvedre, 2% Grenache, 1.4% Viognier, 1.2% Petit Manseng","region":"Napa Valley & Ventura County","country":"USA","rp":98,"ws":97,"price":450,"vest":false,"bottle":"750ml"},{"winery":"Sine Qua Non Ziehharmonika","vintage":2018,"loc":"7-1-5","grape":"Syrah","grapeRaw":"82% Syrah, 6.7% Mourvedre, 5% Petite Sirah, 2.3% Grenache, 2.7% Viognier, 1.3% Muscat","region":"Napa Valley & Ventura County","country":"USA","rp":97,"ws":96,"price":400,"vivino":4.6,"vest":false,"bottle":"750ml"},{"winery":"Sine Qua Non The Gorgeous Victim","vintage":2017,"loc":"7-1-6","grape":"Grenache","grapeRaw":"76% Grenache, 10% Mourvedre, 9% Syrah, 3.8% Petite Sirah, 1.2% Viognier","region":"Napa Valley & Ventura County","country":"USA","rp":97,"ws":96,"price":420,"vivino":4.6,"vest":false,"bottle":"750ml"}];
+const GRAPE={
+ 'Cabernet Sauvignon':{c:'#7d2b34',label:'赤霞珠 Cabernet Sauvignon',desc:'全球种植最广的红葡萄，皮厚、单宁强、酸度好。典型黑加仑、雪松、铅笔芯与薄荷，结构扎实极耐陈年，是波尔多左岸与纳帕的顶梁柱。'},
+ 'Merlot':{c:'#a1596a',label:'美乐 Merlot',desc:'果实饱满、单宁柔顺，李子、黑樱桃、巧克力与天鹅绒般口感。成熟早、更易入口，是波尔多右岸（波美侯/圣埃美隆）的主角。'},
+ 'Cabernet Franc':{c:'#833a5a',label:'品丽珠 Cabernet Franc',desc:'红果、青椒与铅笔芯，清新有骨架、单宁细。常在波尔多混酿中提香，卢瓦尔与右岸亦见单一品种佳作。'},
+ 'Petit Verdot':{c:'#55304a',label:'小维铎 Petit Verdot',desc:'色深单宁高，紫罗兰、黑果与香料，多作波尔多混酿的"调味料"增添结构与色泽。'},
+ 'Syrah':{c:'#472f4d',label:'西拉 Syrah / Shiraz',desc:'深色浓郁，黑莓、黑橄榄、白胡椒与烟熏，单宁厚实。隆河北部与澳洲的招牌。'},
+ 'Grenache':{c:'#b0475f',label:'歌海娜 Grenache',desc:'果味奔放，红果、草莓与香料，酒体偏暖、单宁柔和，隆河南部与 GSM 混酿的基石。'},
+ 'Mourvedre':{c:'#5a3a4a',label:'慕合怀特 Mourvèdre',desc:'深沉野性，黑果、皮革与野味，单宁强、需时间柔化，GSM 混酿的骨架。'},
+ 'Pinot Noir':{c:'#c46a7d',label:'黑皮诺 Pinot Noir',desc:'色浅质地细腻，红樱桃、覆盆子、玫瑰与森林气息，优雅难养，勃艮第之魂。'},
+ 'Malbec':{c:'#5a2a48',label:'马尔贝克 Malbec',desc:'深紫饱满，黑李子、可可与紫罗兰，圆润奔放，阿根廷的代表。'},
+ 'Tempranillo':{c:'#9c4436',label:'丹魄 Tempranillo',desc:'红果、皮革与烟草，橡木陈酿带香草椰香，西班牙里奥哈的灵魂。'},
+ 'Sangiovese':{c:'#b23a3a',label:'桑娇维塞 Sangiovese',desc:'酸樱桃、番茄叶与皮革，高酸高单宁，基安蒂与布鲁奈罗的核心。'},
+ 'Nebbiolo':{c:'#b06a52',label:'内比奥罗 Nebbiolo',desc:'色浅却劲道十足，玫瑰、焦油与红果，单宁如丝网，巴罗洛/巴巴莱斯科之王。'},
+ 'Zinfandel':{c:'#a83c4a',label:'仙粉黛 Zinfandel',desc:'果酱般浓郁，黑莓、果酱与甜香料，酒精偏高，加州的招牌。'},
+ 'Corvina':{c:'#7a3340',label:'科维纳 Corvina（Amarone）',desc:'威尼托风干葡萄酿造的 Amarone 主力，黑樱桃、果干、可可与甘草，饱满醇厚。'},
+ 'Chardonnay':{c:'#c9ab55',label:'霞多丽 Chardonnay',desc:'百变白葡萄，从清爽柑橘矿物到丰腴的黄油、橡木与烤面包皆有，勃艮第白与纳帕名品。'},
+ 'Sauvignon Blanc':{c:'#a9b06a',label:'长相思 Sauvignon Blanc',desc:'清爽芳香，青草、青柠、百香果与矿物，新西兰马尔堡与卢瓦尔的经典。'},
+ 'Riesling':{c:'#cbc06a',label:'雷司令 Riesling',desc:'高酸芳香，青柠、白花与汽油般矿物，干甜皆宜、极耐陈，德国之光。'},
+ 'Pinot Gris':{c:'#cabf86',label:'灰皮诺 Pinot Gris / Grigio',desc:'清爽柔和，梨、苹果与柑橘，意式清瘦、阿尔萨斯式饱满。'},
+ 'Gewurztraminer':{c:'#d0a86a',label:'琼瑶浆 Gewürztraminer',desc:'浓香扑鼻，玫瑰、荔枝与异域香料，酒体饱满、酸度偏低。'},
+ 'Chenin Blanc':{c:'#c6a84e',label:'白诗南 Chenin Blanc',desc:'极其多变，青苹果、蜂蜜与湿羊毛，酸度出色，从干型到贵腐皆能。'},
+ 'Semillon':{c:'#c9b45e',label:'赛美蓉 Sémillon',desc:'圆润，蜂蜡与柑橘，常与长相思混酿或酿造苏玳贵腐甜酒。'},
+ 'Viognier':{c:'#cca24e',label:'维欧尼 Viognier',desc:'芳香饱满，杏、金银花与桃，酒体丰腴，隆河孔得里约的明星。'},
+ 'Muscat':{c:'#d8bf72',label:'麝香 Muscat / Moscato',desc:'花香甜美，葡萄、橙花与荔枝，多酿微甜起泡或甜酒。'},
+ 'Rhône Blend':{c:'#5f3a5c',label:'隆河混酿 GSM',desc:'以西拉/歌海娜/慕合怀特为主，黑果、香料与野性，饱满浓郁。'},
+ 'Other':{c:'#a7a189',label:'其他 / 未分类',desc:'其他品种或混酿。'}
+};
+const WINE_DESC=[
+ ['Lafite Rothschild','波尔多五大一级庄之首（波亚克）。以优雅、含蓄、雪松与铅笔芯著称，极致细腻、陈年潜力惊人。'],
+ ['Latour','波亚克一级庄。力量与结构的化身，深邃厚重、几乎不倒的陈年能力，"波尔多的堡垒"。'],
+ ['Margaux Pavillon Rouge','一级庄玛歌的副牌。风格贴近正牌的花香丝滑，但更早适饮、更亲民。'],
+ ['Margaux','玛歌一级庄。花香、丝滑与极致优雅，被誉为"波尔多的女性"。'],
+ ['Mouton Rothschild','波亚克一级庄（1973 晋升）。奔放华丽、浓郁性感，每年由名家绘制艺术酒标。'],
+ ['Haut-Brion','佩萨克-雷奥良一级庄，五大中唯一格拉夫产区。烟熏、矿物与温暖泥土气，历史最悠久。'],
+ ['Petrus','波美侯之王，几乎全美乐。极致丰腴、天鹅绒质地，右岸神话、一瓶难求。'],
+ ['Le Pin','波美侯"车库酒"鼻祖。产量极小、价格惊人，妖娆丰腴、魅力独具。'],
+ ["Cos d'Estournel",'圣埃斯泰夫二级庄。东方异域风格的酒庄建筑，酒亦力量与香料并存。'],
+ ['Pichon-Longueville Comtesse','波亚克"超二级"。优雅柔美、美乐比例偏高，紧邻拉图。'],
+ ['Lynch Bages','波亚克五级庄，"性价比之王"。浓郁黑果、烟草与皮革，亲和有力。'],
+ ['Talbot','圣朱利安四级庄。圆润可亲、稳定可靠的老牌名庄。'],
+ ['Leoville Las Cases','圣朱利安"超二级"，紧邻拉图，公认接近一级庄水准。'],
+ ['Leovvile Poyferre','圣朱利安二级庄（Léoville Poyferré）。现代浓郁、丰润华丽。'],
+ ['Leovville Barton','圣朱利安二级庄（Léoville Barton）。传统扎实、性价比高、陈年出色。'],
+ ['Brane-Cantenac','玛歌二级庄。优雅芳香、单宁细腻的经典玛歌风。'],
+ ['Canon La Gaffeliere','圣埃美隆一级B庄。美乐主导，丝滑丰润、von Neipperg 家族名作。'],
+ ['La Couspaude','圣埃美隆列级庄。现代浓郁、橡木丰盛的车库风格。'],
+ ['Valandraud','圣埃美隆"车库酒"传奇，后晋升一级B。产量小、浓缩奢华。'],
+ ['Lascombes','玛歌二级庄。现代化浓郁风格、色深味厚。'],
+ ['Chateau Canon','圣埃美隆一级B庄。石灰岩风土，纯净精准、优雅有力。'],
+ ['Reserve Speciale','拉菲罗斯柴尔德旗下品牌系列，亲民入门、日常之选。'],
+ ['Clos du Val','纳帕鹿跃区老牌名庄，1976 巴黎审判参赛者。均衡优雅。'],
+ ['Joseph Phelps','纳帕名庄，旗舰 Insignia 传奇；此为酒庄赤霞珠，浓郁醇厚。'],
+ ['Realm','纳帕膜拜酒新贵。精致浓郁的波尔多混酿，收藏热门。'],
+ ['Harlan','纳帕殿堂级膜拜酒。The Maiden 为其副牌，血统同源、更早适饮。'],
+ ['Saxum','帕索罗布尔斯隆河风格膜拜酒，G2 混酿浓郁奔放、多次登顶年度榜。'],
+ ["Stag's Leap Cask 23",'鹿跃酒窖旗舰 Cask 23。1976 巴黎审判封神，优雅深邃。'],
+ ["Stag's Leap Fay",'鹿跃酒窖单一园 Fay。柔美芬芳、红果与香料。'],
+ ['Blankiet','纳帕 Yountville 精品小庄，精致的波尔多混酿。'],
+ ['Sine Qua Non','加州顶级膜拜酒（SQN）。隆河品种、每批换名换标、艺术酒标，一瓶难求。'],
+ ['Bin 707','奔富赤霞珠旗舰，"南半球的一级庄"，浓郁强劲、极耐陈。'],
+ ['Bin 407','奔富赤霞珠，Bin 707 的亲民版，果味丰盈、结构均衡。'],
+ ['Ridge Monte Bello','圣克鲁兹山传奇 Cab，1976 巴黎审判与后续复评的常胜军，优雅耐陈。'],
+ ['Dalla Valle','纳帕 Oakville 膜拜酒，Maya 以品丽珠见长，浓郁深邃。'],
+ ['Stony Hill','纳帕历史名庄，勃艮第风格的清瘦优雅霞多丽。'],
+ ['BOND','Harlan 旗下 BOND，纳帕多块顶级园各出一款，殿堂级 Cab。'],
+ ['Amarone','威尼托 Amarone della Valpolicella，风干葡萄酿造，醇厚甘美。'],
+ ['Los Vascos','智利拉菲旗下酒庄，Cromas 珍藏，性价比出众。'],
+ ['东风','中国洛阳东风酒庄陶罐自然甜红，本土甜型红葡萄酒。'],
+ ['Longview','新西兰北地 Longview 酒庄 White Diamond。']
+];
+function wineDesc(w){for(const[k,d]of WINE_DESC){if(w.winery.toLowerCase().includes(k.toLowerCase()))return d;}
+ return `${w.region?w.region+' · ':''}${w.country||''} 的${(GRAPE[w.grape]||GRAPE.Other).label.split(' ')[0]}。`;}
+const STRUCTURE_BASE={1:[6,5],2:[6,5],3:[6,5],4:[6,5],5:[6,6,5],6:[5,4],7:[6]};
+let STRUCTURE=JSON.parse(JSON.stringify(STRUCTURE_BASE));
+const STANDING=[7];
+function gColor(w){return (GRAPE[w.grape]||GRAPE.Other).c}
+function gLabel(w){return (GRAPE[w.grape]||GRAPE.Other).label}
+function esc(s){return String(s??'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]))}
+const FLAG={France:'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#fff"/><rect width="6" height="12" fill="#2b4a9b"/><rect x="12" width="6" height="12" fill="#d0342c"/></svg>',Italy:'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#fff"/><rect width="6" height="12" fill="#2e8b57"/><rect x="12" width="6" height="12" fill="#d0342c"/></svg>',USA:'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#fff"/><g fill="#d0342c"><rect width="18" height="1.7"/><rect y="3.4" width="18" height="1.7"/><rect y="6.8" width="18" height="1.7"/><rect y="10.2" width="18" height="1.7"/></g><rect width="8" height="6.8" fill="#2b3a7b"/><g fill="#fff"><circle cx="2" cy="2" r=".7"/><circle cx="5" cy="2" r=".7"/><circle cx="3.5" cy="4.4" r=".7"/><circle cx="6.5" cy="4.4" r=".7"/></g></svg>',Australia:'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#1b3a7a"/><path d="M4 0 V6 M0 3 H8" stroke="#fff" stroke-width="1.3"/><g fill="#fff"><circle cx="4" cy="9.3" r="1"/><circle cx="13" cy="3" r=".7"/><circle cx="15.3" cy="6" r=".7"/><circle cx="12.6" cy="8.2" r=".7"/></g></svg>',China:'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#d0342c"/><g fill="#ffde3a"><circle cx="4" cy="3.6" r="2"/><circle cx="7.6" cy="1.6" r=".6"/><circle cx="8.7" cy="3.4" r=".6"/><circle cx="8.7" cy="5.6" r=".6"/><circle cx="7.6" cy="7.4" r=".6"/></g></svg>','New Zealand':'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#1b3a7a"/><path d="M4 0 V6 M0 3 H8" stroke="#fff" stroke-width="1.3"/><g fill="#d0342c"><circle cx="14" cy="3" r=".7"/><circle cx="15.4" cy="6" r=".7"/><circle cx="13" cy="7.6" r=".7"/><circle cx="15.2" cy="9.4" r=".7"/></g></svg>',Chile:'<svg viewBox="0 0 18 12"><rect width="18" height="12" rx="1.5" fill="#fff"/><rect y="6" width="18" height="6" fill="#d0342c"/><rect width="6" height="6" fill="#2b3a7b"/><path d="M3 1.5 L3.7 3.5 L1.9 2.3 L4.1 2.3 L2.3 3.5 Z" fill="#fff"/></svg>'};
+function flagSVG(country){const fl=FLAG[country];return fl?`<span class="flag" title="${country||''}">${fl}</span>`:'';}
+const WHITEG=new Set(['Chardonnay','Sauvignon Blanc','Riesling','Pinot Gris','Gewurztraminer','Chenin Blanc','Semillon','Viognier','Muscat']);
+function grapeCat(g){return g==='Other'?2:(WHITEG.has(g)?1:0);}
+function lum(hex){hex=hex.replace('#','');const n=parseInt(hex,16);return 0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255);}
+function grapeOrder(){return Object.keys(GRAPE).sort((a,b)=>{const c=grapeCat(a)-grapeCat(b);if(c)return c;return lum(GRAPE[a].c)-lum(GRAPE[b].c);});}
+function shortName(w){let s=w.winery;const map=[['Barons de Rothschild Lafite Collection Reserve Speciale','Lafite Rés. Spéciale'],['Pichon-Longueville Comtesse de Lalande','Pichon Comtesse'],['Bennati Cerasum Riserva della Famiglia Bennati Amarone della Valpolicella Riserva DOCG','Bennati Amarone'],['东风酒庄陶罐自然甜红葡萄酒','东风·自然甜红'],['Sine Qua Non','SQN'],['Chateau Petrus','Pétrus'],['Chateau ',''],['Château ',''],[' Premier Grand Cru',''],[' Estate Grown',''],[' Gran Reserva','']];
+  for(const [a,b] of map) s=s.split(a).join(b);
+  s=s.replace(' Rothschild','').trim();
+  if(s.length>26) s=s.slice(0,25)+'…';return s;}
+
+const base=WINES.slice();
+base.forEach((w,i)=>{w._id=w.loc?('L'+w.loc):('b'+i+'|'+w.winery+'|'+w.vintage);});
+const LS='cwc:cellar_yyc';
+let state={moves:{},meta:{},added:[],finished:[]};
+try{Object.assign(state,JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){}
+state.moves=state.moves||{};state.meta=state.meta||{};state.added=state.added||[];state.finished=state.finished||[];state.opened=state.opened||[];
+try{const savedStruct=JSON.parse(localStorage.getItem(LS+':struct')||'null');if(savedStruct)STRUCTURE=savedStruct;}catch(e){}
+function save(){try{localStorage.setItem(LS,JSON.stringify(state));localStorage.setItem(LS+':struct',JSON.stringify(STRUCTURE));}catch(e){}}
+function allWines(){return base.concat(state.added)}
+function wineById(id){return allWines().find(w=>w._id===id)}
+function isFinished(w){return state.finished.includes(w._id)}
+function isOpened(w){return state.opened.includes(w._id)}
+function effLoc(w){if(isFinished(w))return null;if(w._id in state.moves)return state.moves[w._id];return w.loc;}
+function subKey(loc){if(!loc)return null;const a=loc.split('-');return a[0]+'-'+a[1];}
+function pOf(loc){return parseFloat(loc.split('-')[2]);}
+function sublevelWines(l,s){return allWines().filter(w=>!isFinished(w)&&subKey(effLoc(w))===`${l}-${s}`).sort((a,b)=>pOf(effLoc(a))-pOf(effLoc(b)));}
+function rankOf(w){const l=effLoc(w);if(!l)return null;const a=l.split('-');return sublevelWines(a[0],a[1]).indexOf(w)+1;}
+function getR(w){return (state.meta[w._id]&&state.meta[w._id].r)||0}
+function getN(w){return (state.meta[w._id]&&state.meta[w._id].n)||''}
+function setMeta(w,k,v){state.meta[w._id]=state.meta[w._id]||{};state.meta[w._id][k]=v;save()}
+function unfinish(id){state.finished=state.finished.filter(x=>x!==id)}
+function placeInLane(id,l,s,index){const w=wineById(id);if(!w)return;unfinish(id);
+  const list=sublevelWines(l,s).filter(x=>x._id!==id);let P;
+  if(list.length===0)P=1;else if(index<=0)P=pOf(effLoc(list[0]))/2;else if(index>=list.length)P=pOf(effLoc(list[list.length-1]))+1;else P=(pOf(effLoc(list[index-1]))+pOf(effLoc(list[index])))/2;
+  state.moves[id]=`${l}-${s}-${P}`;save();render();}
+function unplace(id){unfinish(id);state.moves[id]=null;save();render();}
+function openBottle(id){if(!state.opened.includes(id))state.opened.push(id);save();render();closeCard();}
+function closeBottle(id){state.opened=state.opened.filter(x=>x!==id);save();render();closeCard();}
+function finish(id){if(!state.finished.includes(id))state.finished.push(id);save();render();closeCard();}
+function restore(id){unfinish(id);save();render();closeCard();}
+function changeCap(l,s,delta){const arr=STRUCTURE[l];if(!arr)return;const i=s-1;if(i<0||i>=arr.length)return;const n=arr[i]+delta;if(n<1||n>20)return;arr[i]=n;save();render();}
+
+function lyingSVG(c){return `<svg viewBox="0 0 140 44" xmlns="http://www.w3.org/2000/svg">
+<g fill="none" stroke="#8a7a6a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+<path class="glass" d="M32 9 Q28 9 24 11 L14 14 Q10 15 10 22 Q10 29 14 30 L24 33 Q28 35 32 35 L124 35 Q135 35 135 22 Q135 9 124 9 Z" fill="${c}" fill-opacity="0.35"/>
+<path d="M10 20 L3 21 Q1 21 1 22 Q1 23 3 23 L10 24" fill="#c8a96a" fill-opacity=".7"/>
+<line x1="70" y1="12" x2="70" y2="32" stroke-opacity=".25" stroke-dasharray="2 5"/>
+<line x1="40" y1="14" x2="40" y2="30" stroke-opacity=".15" stroke-dasharray="1 4"/>
+<line x1="100" y1="14" x2="100" y2="30" stroke-opacity=".15" stroke-dasharray="1 4"/>
+</g></svg>`;}
+function standingSVG(c){return `<svg viewBox="0 0 40 112" xmlns="http://www.w3.org/2000/svg">
+<g fill="none" stroke="#8a7a6a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+<path class="glass" d="M17 34 Q12 42 12 54 L12 96 Q12 102 18 102 L22 102 Q28 102 28 96 L28 54 Q28 42 23 34 L23 14 L17 14 Z" fill="${c}" fill-opacity="0.35"/>
+<rect x="17" y="3" width="6" height="11" rx="2" fill="#c8a96a" fill-opacity=".7"/>
+<line x1="13" y1="66" x2="27" y2="66" stroke-opacity=".25" stroke-dasharray="2 5"/>
+<line x1="15" y1="46" x2="25" y2="46" stroke-opacity=".15" stroke-dasharray="1 4"/>
+<line x1="15" y1="82" x2="25" y2="82" stroke-opacity=".15" stroke-dasharray="1 4"/>
+</g></svg>`;}
+function emptyLying(){return `<svg viewBox="0 0 140 44"><path d="M32 9 Q28 9 24 11 L14 14 Q10 15 10 22 Q10 29 14 30 L24 33 Q28 35 32 35 L124 35 Q135 35 135 22 Q135 9 124 9 Z" fill="none" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 6"/></svg>`;}
+function emptyStanding(){return `<svg viewBox="0 0 40 112"><path d="M17 34 Q12 42 12 54 L12 96 Q12 102 18 102 L22 102 Q28 102 28 96 L28 54 Q28 42 23 34 L23 14 L17 14" fill="none" stroke="var(--line)" stroke-width="1.2" stroke-dasharray="3 6"/></svg>`;}
+function corkSVG(){return `<svg viewBox="0 0 30 40"><g stroke="#8a6a3a" stroke-width="1.3"><rect x="7" y="4" width="16" height="32" rx="4" fill="var(--cork)"/><path d="M7 12 H23 M7 28 H23" stroke-opacity=".4"/></g></svg>`;}
+function cellHTML(w,vert){const r=getR(w),c=gColor(w),op=isOpened(w);
+  return `<button class="cell${vert?' vert':''}" draggable="true" data-id="${esc(w._id)}" title="${esc(w.winery)} · ${w.vintage||'NV'}${op?' · 已开瓶':''}">${op?'<span class="open-tag">已开瓶</span>':''}${vert?standingSVG(c):lyingSVG(c)}<div class="cap"><div class="nm">${esc(shortName(w))}</div><div class="yr">${flagSVG(w.country)} ${w.vintage||'NV'}</div>${r?`<div class="rt">${'★'.repeat(r)}</div>`:''}</div></button>`;}
+
+function render(){let html='';
+  for(const lvl of Object.keys(STRUCTURE)){const subs=STRUCTURE[lvl];const cap=subs.reduce((a,b)=>a+b,0);const vert=STANDING.includes(+lvl);
+    let filled=0;const order=subs.map((x,i)=>i+1).reverse();let lanes='';
+    for(const s of order){const arr=sublevelWines(lvl,s);filled+=arr.length;const nominal=subs[s-1];
+      let slots=arr.map(w=>cellHTML(w,vert)).join('');
+      for(let k=arr.length;k<nominal;k++)slots+=`<div class="ph${vert?' vert':''}">${vert?emptyStanding():emptyLying()}</div>`;
+      lanes+=`<div class="lane" data-lane="${lvl}-${s}"><div class="slots">${slots}</div><div class="shelfline"></div>${subs.length>1?`<div class="subtag">S${s} · 容量 ${nominal} <span class="cap-ctrl"><button onclick="changeCap(${lvl},${s},-1)">−</button><span>${nominal}</span><button onclick="changeCap(${lvl},${s},1)">+</button></span></div>`:`<div class="subtag">容量 ${nominal} <span class="cap-ctrl"><button onclick="changeCap(${lvl},${s},-1)">−</button><span>${nominal}</span><button onclick="changeCap(${lvl},${s},1)">+</button></span></div>`}</div>`;}
+    const over=filled>cap;
+    html+=`<div class="shelf"><div class="shelf-hd"><span class="no">${String(lvl).padStart(2,'0')}</span><span class="ttl">第 ${lvl} 层${vert?' · 站立摆放':''}</span><span class="fill${over?' over':''}">${filled} / ${cap}</span></div>${lanes}</div>`;}
+  document.getElementById('shelves').innerHTML=html;
+  const tray=allWines().filter(w=>!isFinished(w)&&!effLoc(w));
+  document.getElementById('trayList').innerHTML=tray.length?tray.map(w=>cellHTML(w,false)).join(''):'<p style="color:var(--faint);font-style:italic;font-size:13px">都归位啦 ✿</p>';
+  const fin=allWines().filter(isFinished);
+  document.getElementById('binList').innerHTML=fin.length?fin.map(w=>`<div class="cork" data-cork="${esc(w._id)}" title="${esc(w.winery)} ${w.vintage||''}">${corkSVG()}</div>`).join(''):'<span class="empty-note">还没有喝完的～</span>';
+  updateStats();applyFilters();}
+function updateStats(){const act=allWines().filter(w=>!isFinished(w));
+  const wineries=new Set(act.map(w=>w.winery)).size;const yrs=act.map(w=>w.vintage).filter(Boolean);
+  const opened=act.filter(isOpened).length;document.getElementById('statline').innerHTML=[['在柜',act.length],['酒庄',wineries],['年份',(Math.min(...yrs))+'–'+(Math.max(...yrs))],['已开',opened]].map(([k,v])=>`<div class="s"><b>${v}</b><span>${k}</span></div>`).join('');}
+function buildLegend(){const present=new Set(allWines().map(w=>w.grape));const ordered=grapeOrder().filter(g=>present.has(g)&&GRAPE[g]);
+  document.getElementById('legend').innerHTML=ordered.map(g=>`<span><i class="sw" style="background:${GRAPE[g].c}"></i>${GRAPE[g].label}</span>`).join('');}
+function buildCountryFilter(){const cs=[...new Set(allWines().map(w=>w.country).filter(Boolean))];
+  const zh={France:'法国',USA:'美国',Australia:'澳洲',Italy:'意大利',China:'中国','New Zealand':'新西兰',Chile:'智利'};
+  document.getElementById('fCountry').innerHTML=`<button data-c="all" class="on">全部</button>`+cs.map(c=>`<button data-c="${esc(c)}">${zh[c]||c}</button>`).join('');}
+
+let dragId=null;
+document.addEventListener('dragstart',e=>{const c=e.target.closest('.cell');if(!c)return;dragId=c.dataset.id;c.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId)}catch(_){}});
+document.addEventListener('dragend',e=>{const c=e.target.closest('.cell');if(c)c.classList.remove('dragging');document.querySelectorAll('.drop-hi').forEach(x=>x.classList.remove('drop-hi'));dragId=null;});
+function zoneOf(el){return el.closest('.lane')||el.closest('[data-drop]')}
+document.addEventListener('dragover',e=>{const z=zoneOf(e.target);if(!z||!dragId)return;e.preventDefault();if(!z.classList.contains('drop-hi')){document.querySelectorAll('.drop-hi').forEach(x=>x.classList.remove('drop-hi'));z.classList.add('drop-hi');}});
+function laneInsertIndex(lane,x){const cells=[...lane.querySelectorAll('.cell')];for(let i=0;i<cells.length;i++){const r=cells[i].getBoundingClientRect();if(x<r.left+r.width/2)return i;}return cells.length;}
+document.addEventListener('drop',e=>{const z=zoneOf(e.target);if(!z||!dragId)return;e.preventDefault();const id=dragId;
+  if(z.getAttribute('data-drop')==='bin')finish(id);else if(z.getAttribute('data-drop')==='tray')unplace(id);
+  else if(z.dataset.lane){const[l,s]=z.dataset.lane.split('-');placeInLane(id,l,s,laneInsertIndex(z,e.clientX));}});
+
+const scrim=document.getElementById('scrim'),card=document.getElementById('card');
+function wsUrl(w){return 'https://www.wine-searcher.com/find/'+encodeURIComponent(`${w.winery} ${w.vintage||''}`.trim());}
+function vvUrl(w){return 'https://www.vivino.com/search/wines?q='+encodeURIComponent(`${w.winery} ${w.vintage||''}`.trim());}
+function locText(w){if(isFinished(w))return '已喝完';const l=effLoc(w);if(!l)return '还没归位';const a=l.split('-');return `第 ${a[0]} 层 · 子层 S${a[1]} · 左起第 ${rankOf(w)} 位`;}
+function starRow(w){let s='';const r=getR(w);for(let i=1;i<=5;i++)s+=`<span class="st${i<=r?' on':''}" data-v="${i}">★</span>`;return s+`<button class="clear" data-v="0">清除</button>`;}
+function paintStars(w){const r=getR(w);card.querySelectorAll('#stars .st').forEach(x=>x.classList.toggle('on',+x.dataset.v<=r));}
+function openCard(w){const g=GRAPE[w.grape]||GRAPE.Other;const vv=w.vivino;
+  const rpBadge=w.rp?`<div class="score-pill"><div class="slab">Robert Parker</div><div class="sval">${w.rp}</div></div>`:'';
+  const wsBadge=w.ws?`<div class="score-pill"><div class="slab">Wine Spectator</div><div class="sval">${w.ws}</div></div>`:'';
+  card.innerHTML=`<button class="x" data-close>×</button>
+    <div class="fam"><i class="sw" style="background:${g.c}"></i>${g.label}</div>
+    <h2>${esc(w.winery)}</h2>
+    <div class="vint">年份 <b>${w.vintage||'NV'}</b></div>
+    <div class="meta"><div><label>产区</label><div>${esc(w.region||'—')}</div></div><div><label>国家</label><div>${esc(w.country||'—')}</div></div><div><label>位置</label><div>${locText(w)}</div></div><div><label>瓶型</label><div>${esc(w.bottle||'750ml')}</div></div></div>
+    <div class="sect"><div class="lab">🍇 葡萄品种</div>${w.grapeRaw?`<div class="blend">${esc(w.grapeRaw)}</div>`:''}<p>${g.desc}</p></div>
+    <div class="sect"><div class="lab">📖 关于这瓶</div><p>${wineDesc(w)}</p></div>
+    <div class="info2">
+      <div class="irow"><div class="ilab">Vivino 评分</div><div class="ival">${vv?`<b>${w.vest?'≈':''}${vv}</b> / 5${w.vest?' <em>参考</em>':''}`:'<em>暂无</em>'}<a class="lnk sm" target="_blank" rel="noopener" href="${vvUrl(w)}">↗</a></div></div>
+      <div class="irow"><div class="ilab">参考市场价</div><div class="ival">${w.price?`<b>≈ $${Number(w.price).toLocaleString()}</b> <em>/瓶</em>`:'<em>暂无</em>'}<a class="lnk sm" target="_blank" rel="noopener" href="${wsUrl(w)}">查实时价 ↗</a></div></div>
+      <div class="inote">Vivino 评分与市场价均为参考，随年份、批次与市场波动；以链接的实时数据为准。</div>
+    </div>
+    ${(rpBadge||wsBadge)?`<div class="score-row">${rpBadge}${wsBadge}</div>`:''}
+    <div class="mine"><div class="lab">我的评分 <em>· 喝过再打，没喝可留空</em></div><div class="stars" id="stars">${starRow(w)}</div><div class="lab">我的品尝笔记</div><textarea id="note" placeholder="香气、口感、和谁一起喝的、配了什么、还想不想再买……">${esc(getN(w))}</textarea><div class="saved" id="saved"></div></div>
+    <div class="cardbtns">${isFinished(w)?`<button class="btn2 wine" data-restore="${esc(w._id)}">↩ 放回酒柜</button>`:`<button class="btn2" data-finish="${esc(w._id)}">🥂 标为喝完</button>`}
+      ${!isFinished(w)?(isOpened(w)?`<button class="btn2 open" data-close-bottle="${esc(w._id)}">🔒 关闭酒瓶</button>`:`<button class="btn2 open" data-open-bottle="${esc(w._id)}">🍷 标记已开瓶</button>`):''}
+    </div>`;
+  const stars=card.querySelector('#stars');
+  stars.querySelectorAll('.st').forEach(el=>{el.addEventListener('mouseenter',()=>{const v=+el.dataset.v;stars.querySelectorAll('.st').forEach(x=>x.classList.toggle('on',+x.dataset.v<=v));});el.addEventListener('click',()=>{setMeta(w,'r',+el.dataset.v);paintStars(w);render();});});
+  stars.querySelector('.clear').addEventListener('click',()=>{setMeta(w,'r',0);paintStars(w);render();});
+  stars.addEventListener('mouseleave',()=>paintStars(w));
+  const ta=card.querySelector('#note'),sv=card.querySelector('#saved');let t;
+  ta.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{setMeta(w,'n',ta.value);sv.textContent='已保存 ✓';setTimeout(()=>sv.textContent='',1200);},400);});
+  scrim.classList.add('show');}
+window.closeCard=()=>scrim.classList.remove('show');
+scrim.addEventListener('click',e=>{if(e.target===scrim||e.target.hasAttribute('data-close'))closeCard();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCard();closeForm();}});
+document.body.addEventListener('click',e=>{const fin=e.target.closest('[data-finish]');if(fin){finish(fin.dataset.finish);return;}const res=e.target.closest('[data-restore]');if(res){restore(res.dataset.restore);return;}const cork=e.target.closest('[data-cork]');if(cork){const w=wineById(cork.dataset.cork);if(w)openCard(w);return;}const ob=e.target.closest('[data-open-bottle]');if(ob){openBottle(ob.dataset.openBottle);return;}
+  const cb=e.target.closest('[data-close-bottle]');if(cb){closeBottle(cb.dataset.closeBottle);return;}
+  const c=e.target.closest('.cell');if(c){const w=wineById(c.dataset.id);if(w){document.querySelectorAll('.cell.sel').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');openCard(w);}}});
+
+const formScrim=document.getElementById('formScrim'),formCard=document.getElementById('formCard');
+function openForm(){const opts=grapeOrder().map(g=>`<option value="${g}">${GRAPE[g].label}</option>`).join('');
+  formCard.innerHTML=`<button class="x" data-cform>×</button><h2>新增一瓶</h2><p>填好后它会出现在「还没归位」，再拖进柜子就行。</p>
+    <div class="field"><label>酒名 *</label><input id="f_winery" placeholder="如 Screaming Eagle / Chateau Palmer"></div>
+    <div class="frow"><div class="field"><label>年份</label><input id="f_vintage" placeholder="2019" inputmode="numeric"></div><div class="field"><label>主要葡萄品种</label><select id="f_grape">${opts}</select></div></div>
+    <div class="frow"><div class="field"><label>国家</label><input id="f_country" placeholder="France / USA…"></div><div class="field"><label>产区</label><input id="f_region" placeholder="如 Napa Valley"></div></div>
+    <div class="field"><label>混酿比例（可选）</label><input id="f_graw" placeholder="如 60% Cabernet, 40% Merlot"></div>
+    <button class="go" id="f_go">加入酒柜</button>`;
+  formCard.querySelector('#f_go').addEventListener('click',()=>{const winery=formCard.querySelector('#f_winery').value.trim();if(!winery){formCard.querySelector('#f_winery').focus();return;}const vRaw=formCard.querySelector('#f_vintage').value.trim();
+    state.added.push({_id:'u'+Date.now(),winery,name:null,vintage:vRaw?(parseInt(vRaw,10)||vRaw):null,grape:formCard.querySelector('#f_grape').value,grapeRaw:formCard.querySelector('#f_graw').value.trim()||null,country:formCard.querySelector('#f_country').value.trim()||null,region:formCard.querySelector('#f_region').value.trim()||null,loc:null,vivino:null,vest:false,bottle:null,rp:null,ws:null,price:null});
+    save();buildLegend();buildCountryFilter();wireCountry();render();closeForm();document.getElementById('trayZone').scrollIntoView({behavior:'smooth',block:'center'});});
+  formScrim.classList.add('show');}
+window.closeForm=()=>formScrim.classList.remove('show');
+formScrim.addEventListener('click',e=>{if(e.target===formScrim||e.target.hasAttribute('data-cform'))closeForm();});
+document.getElementById('addBtn').addEventListener('click',openForm);
+
+let fc='all',fr='all',fo='all',fq='';
+function applyFilters(){document.querySelectorAll('.cell').forEach(b=>{const w=wineById(b.dataset.id);if(!w)return;let ok=true;
+  if(fo!=='all'){const op=isOpened(w);if(fo==='open'&&!op)ok=false;if(fo==='closed'&&op)ok=false;}
+  if(fc!=='all'&&w.country!==fc)ok=false;
+  if(fr!=='all'){const r=getR(w);if(fr==='0'&&r!==0)ok=false;if(fr==='4'&&r<4)ok=false;if(fr==='3'&&r<3)ok=false;}
+  if(fq){const hay=`${w.winery} ${w.region||''} ${w.grape||''} ${w.grapeRaw||''} ${w.vintage||''}`.toLowerCase();if(!hay.includes(fq))ok=false;}
+  b.classList.toggle('dim',!ok);});}
+function wire(id,fn){document.getElementById(id).addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn)return;[...e.currentTarget.children].forEach(x=>x.classList.toggle('on',x===btn));fn(btn);});}
+function wireCountry(){const el=document.getElementById('fCountry');el.onclick=e=>{const btn=e.target.closest('button');if(!btn)return;[...el.children].forEach(x=>x.classList.toggle('on',x===btn));fc=btn.dataset.c;applyFilters();};}
+wire('fRate',b=>{fr=b.dataset.r;applyFilters();});
+const fOpenEl=document.getElementById('fOpen');fOpenEl.onclick=e=>{const btn=e.target.closest('button');if(!btn)return;[...fOpenEl.children].forEach(x=>x.classList.toggle('on',x===btn));fo=btn.dataset.o;applyFilters();};
+document.getElementById('q').addEventListener('input',e=>{fq=e.target.value.trim().toLowerCase();applyFilters();});
+
+buildLegend();buildCountryFilter();wireCountry();render();
+
+/* export / import backup */
+function exportData(){const blob=new Blob([JSON.stringify({version:2,timestamp:Date.now(),data:state,structure:STRUCTURE},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='christina-wine-cellar-'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function importData(file){const r=new FileReader();r.onload=e=>{try{const obj=JSON.parse(e.target.result);if(obj.data){Object.assign(state,obj.data);}if(obj.structure)STRUCTURE=obj.structure;save();buildLegend();buildCountryFilter();wireCountry();render();alert('恢复成功 ✓');}catch(err){alert('文件格式不对，请选正确的备份文件');}};r.readAsText(file);}
+document.getElementById('exportBtn').addEventListener('click',exportData);
+document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change',e=>{const f=e.target.files[0];if(f)importData(f);e.target.value='';});
+
+/* cross-tab sync via storage event */
+window.addEventListener('storage',ev=>{if(ev.key===LS||ev.key===LS+':struct'){try{const raw=JSON.parse(localStorage.getItem(LS)||'{}');Object.assign(state,raw);const s=JSON.parse(localStorage.getItem(LS+':struct')||'null');if(s)STRUCTURE=s;render();}catch(e){}}});
+
+(function(){const gate=document.getElementById('gate'),pw=document.getElementById('gpw'),btn=document.getElementById('gbtn'),err=document.getElementById('gerr');const PW='123456';
+  function ok(){gate.classList.add('hide');try{sessionStorage.setItem('yyc:auth','1')}catch(e){}}
+  try{if(sessionStorage.getItem('yyc:auth')==='1')gate.classList.add('hide');}catch(e){}
+  function tryit(){if(pw.value===PW)ok();else{err.textContent='密码不对，再试一次～';pw.value='';pw.focus();}}
+  btn.addEventListener('click',tryit);pw.addEventListener('keydown',e=>{if(e.key==='Enter')tryit();});
+  if(!gate.classList.contains('hide'))setTimeout(()=>pw.focus(),100);})();
+</script>
+</body>
+</html>
