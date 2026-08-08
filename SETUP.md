@@ -87,3 +87,46 @@ Supabase 默认注册后要点邮箱里的验证链接才能登录。自己测�
 
 Supabase 里的 **Authentication → URL Configuration**，把你的正式域名加进
 **Site URL / Redirect URLs**，邮箱验证链接才会跳回你的站点。
+
+---
+
+# 新功能说明（本轮新增）
+
+## 1. 改酒柜名字
+页面左上角的大标题就是当前酒柜的名字，**点它**（或顶部工具栏的 ✎）就能改。默认叫 "Wine Cellar"，每个用户/每个酒柜都能各自命名。
+
+## 2. 一个账号多个酒柜，结构随意调
+- 顶部「酒柜」下拉框切换酒柜；**＋** 新建、**✎** 改名、**🗑** 删除。
+- 点 **🧰 结构** 进入结构编辑模式，可以：给某层 `＋行 / －行`、切换该层是否「站立摆放」、`删层`，底部 `＋添加一层`；每排容量用排尾的 `− / +` 调。
+- 这样你可以建各种不同的酒柜：几瓶酒的「日常冰箱」（如一层一排）、几层的小酒架、或多层大酒窖。新酒柜默认是简单的 3 层。
+- 调整结构时，如果某层/某排被删掉，里面的酒会自动回到「还没归位」，不会丢。
+
+## 3. 新增酒时自动联网查资料（需部署一个函数）
+
+新增酒的弹窗里有 **「🔎 联网查资料」** 按钮：填好酒名点一下，它会**联网搜索**这瓶酒的真实产区、国家、葡萄品种、混酿比例、RP/WS/Vivino 评分、参考价和一句话简介，自动填进表单。任何用户新增酒都能用。
+
+它背后是一个 **Supabase Edge Function（`supabase/functions/wine-lookup`）**，用 Claude 的联网搜索能力查证信息，API 密钥只存在服务端。部署一次即可：
+
+**准备：** 安装 Supabase CLI（`npm i -g supabase`，或见官网），并有一个 [Anthropic API key](https://console.anthropic.com/)。
+
+```bash
+# 在仓库根目录
+supabase login
+supabase link --project-ref <你的项目ref>        # ref 在 Supabase 项目 URL 里，如 abcdefgh
+
+# 把 Anthropic 密钥存到服务端（不会进前端）
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-你的key
+
+# 部署函数
+supabase functions deploy wine-lookup
+```
+
+部署好后，前端的「🔎 联网查资料」就能用了（前端已经接好，不用再改代码）。
+
+**成本提示：** 每次查询会调用一次带联网搜索的 Claude（默认用 `claude-opus-5`，最准）。想省钱可以把 `supabase/functions/wine-lookup/index.ts` 里的 `const MODEL = "claude-opus-5"` 改成 `"claude-sonnet-5"`（更便宜，同样支持联网搜索），改完重新 `supabase functions deploy wine-lookup`。
+
+**没部署也不影响用**：不部署这个函数，新增酒时手动填字段照样能加，只是没有「自动填充」而已。
+
+## 关于安全
+- 联网查资料的 Anthropic 密钥用 `supabase secrets set` 存在服务端，**不在前端**，安全。
+- 好友只读参观：编辑控件（新增/评分/拖拽/结构）在参观别人酒柜时会自动隐藏，且数据库 RLS 也不允许改别人的酒柜。

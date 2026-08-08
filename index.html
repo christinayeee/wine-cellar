@@ -132,6 +132,18 @@ textarea:focus{border-color:var(--wine-soft);background:#fff}
 .acct select,.acct .lbtn{font-family:'Inter',sans-serif;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:16px;padding:6px 12px;cursor:pointer}
 .acct .lbtn:hover{border-color:var(--wine-soft);color:var(--wine)}
 .acct .sync{font-size:11px;color:var(--faint);min-width:56px}
+.acct select{max-width:150px}
+.acct .lbtn.on{background:var(--wine);color:#fff;border-color:var(--wine)}
+.struct-ctl{display:inline-flex;gap:4px;margin-left:8px}
+.struct-ctl button{font-family:'Inter',sans-serif;font-size:11px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:12px;padding:3px 9px;cursor:pointer}
+.struct-ctl button:hover{border-color:var(--wine-soft);color:var(--wine)}
+.struct-ctl button.on{background:var(--leaf);color:#fff;border-color:var(--leaf)}
+.struct-ctl button.del{color:var(--wine)}
+.add-level{text-align:center;margin:14px 0 4px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.add-level button{border:1.5px dashed var(--wine-soft);background:var(--card);color:var(--wine);border-radius:16px;padding:8px 18px;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer}
+.add-level button:hover{background:var(--wine);color:#fff}
+.add-level span{font-size:11px;color:var(--faint);font-style:italic;max-width:520px}
+.lookmsg{font-size:12.5px;color:var(--wine);font-style:italic;min-height:16px;margin:2px 0 8px}
 /* friend panel */
 #friendCard{max-width:460px}
 #friendCard h2{font-family:'Dancing Script',cursive;color:var(--wine);margin:0 0 4px}
@@ -154,7 +166,7 @@ textarea:focus{border-color:var(--wine-soft);background:#fff}
 #viewBar button{border:1px solid #fff;background:transparent;color:#fff;border-radius:16px;padding:5px 13px;font-size:12px;cursor:pointer}
 #viewBar button:hover{background:rgba(255,255,255,.15)}
 /* read-only mode: hide editing affordances while viewing a friend's cellar */
-body.viewing #addBtn,body.viewing .mine,body.viewing .cardbtns,body.viewing .cap-ctrl,body.viewing #legacyBtn,body.viewing #trayZone,body.viewing #binZone{display:none}
+body.viewing #addBtn,body.viewing .mine,body.viewing .cardbtns,body.viewing .cap-ctrl,body.viewing #legacyBtn,body.viewing #trayZone,body.viewing #binZone,body.viewing #ownerCtls,body.viewing .struct-ctl,body.viewing .add-level{display:none}
 body.viewing .hint,body.viewing .data-footer{display:none}
 .flag{display:inline-flex;vertical-align:middle}.flag svg{width:15px;height:10px;border:.5px solid rgba(90,74,62,.2);border-radius:2px}
 .info2{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
@@ -235,20 +247,29 @@ body.viewing .hint,body.viewing .data-footer{display:none}
   <div class="hd">
     <div class="brand">
       <div>
-        <h1>Christina's Wine Cellar</h1>
-        <div class="sub">Christina's Wine Cellar</div>
+        <h1 id="cellarTitle">Wine Cellar</h1>
+        <div class="sub">A Cozy Little Cellar</div>
       </div>
     </div>
     <div class="statline" id="statline"></div>
     <div class="acct" id="acct">
       <span class="who" id="whoami"></span>
-      <label class="who">可见性
-        <select id="visSelect" title="谁能看到这个酒柜">
-          <option value="private">🔒 私密</option>
-          <option value="friends">👥 好友可见</option>
-          <option value="public">🌍 所有人</option>
-        </select>
-      </label>
+      <span id="ownerCtls" style="display:contents">
+        <label class="who">酒柜
+          <select id="cellarSelect" title="切换酒柜"></select>
+        </label>
+        <button class="lbtn" id="newCellarBtn" title="新建酒柜">＋</button>
+        <button class="lbtn" id="renameCellarBtn" title="重命名酒柜">✎</button>
+        <button class="lbtn" id="delCellarBtn" title="删除当前酒柜">🗑</button>
+        <button class="lbtn" id="editStructBtn" title="编辑层架结构">🧰 结构</button>
+        <label class="who">可见性
+          <select id="visSelect" title="谁能看到这个酒柜">
+            <option value="private">🔒 私密</option>
+            <option value="friends">👥 好友可见</option>
+            <option value="public">🌍 所有人</option>
+          </select>
+        </label>
+      </span>
       <button class="lbtn" id="friendsBtn">👥 好友</button>
       <button class="lbtn" id="logoutBtn">登出</button>
       <span class="sync" id="syncState"></span>
@@ -474,11 +495,13 @@ const WINE_DESC=[
  ['东风','中国洛阳东风酒庄陶罐自然甜红，本土甜型红葡萄酒。'],
  ['Longview','新西兰北地 Longview 酒庄 White Diamond。']
 ];
-function wineDesc(w){for(const[k,d]of WINE_DESC){if(w.winery.toLowerCase().includes(k.toLowerCase()))return d;}
+function wineDesc(w){if(w.desc)return w.desc;for(const[k,d]of WINE_DESC){if(w.winery.toLowerCase().includes(k.toLowerCase()))return d;}
  return `${w.region?w.region+' · ':''}${w.country||''} 的${(GRAPE[w.grape]||GRAPE.Other).label.split(' ')[0]}。`;}
 const STRUCTURE_BASE={1:[6,5],2:[6,5],3:[6,5],4:[6,5],5:[6,6,5],6:[5,4],7:[6]};
 let STRUCTURE=JSON.parse(JSON.stringify(STRUCTURE_BASE));
-const STANDING=[7];
+let STANDING=[7];
+// 新酒柜的默认结构模板（比 Christina 那套更简单，适合大多数新用户）
+const STRUCTURE_DEFAULT={1:[6],2:[6],3:[6]};
 function gColor(w){return (GRAPE[w.grape]||GRAPE.Other).c}
 function gLabel(w){return (GRAPE[w.grape]||GRAPE.Other).label}
 function esc(s){return String(s??'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]))}
@@ -515,7 +538,7 @@ function scheduleCloudSave(){
 }
 async function cloudSave(){
   if(viewMode||!currentCellarId||!window.sb)return;
-  const payload={base,state,structure:STRUCTURE};
+  const payload={base,state,structure:STRUCTURE,standing:STANDING};
   const {error}=await window.sb.from('cellars')
     .update({payload,updated_at:new Date().toISOString()})
     .eq('id',currentCellarId);
@@ -530,7 +553,8 @@ function applyPayload(p){
   base=Array.isArray(p.base)?p.base:[];
   assignIds(base);
   state=normState(p.state);
-  STRUCTURE=p.structure?JSON.parse(JSON.stringify(p.structure)):JSON.parse(JSON.stringify(STRUCTURE_BASE));
+  STRUCTURE=p.structure?JSON.parse(JSON.stringify(p.structure)):JSON.parse(JSON.stringify(STRUCTURE_DEFAULT));
+  STANDING=Array.isArray(p.standing)?p.standing.slice():[];
 }
 
 // 把「本机旧数据」（写死的 WINES + 旧 localStorage）打包成 payload，用于一次性迁移
@@ -541,7 +565,7 @@ function legacyPayload(){
   st=normState(st);
   let struct=JSON.parse(JSON.stringify(STRUCTURE_BASE));
   try{const s=JSON.parse(localStorage.getItem(LS+':struct')||'null');if(s)struct=s;}catch(e){}
-  return {base:b,state:st,structure:struct};
+  return {base:b,state:st,structure:struct,standing:[7]};
 }
 function allWines(){return base.concat(state.added)}
 function wineById(id){return allWines().find(w=>w._id===id)}
@@ -565,7 +589,16 @@ function openBottle(id){if(viewMode)return;if(!state.opened.includes(id))state.o
 function closeBottle(id){if(viewMode)return;state.opened=state.opened.filter(x=>x!==id);save();render();closeCard();}
 function finish(id){if(viewMode)return;if(!state.finished.includes(id))state.finished.push(id);save();render();closeCard();}
 function restore(id){if(viewMode)return;unfinish(id);save();render();closeCard();}
-function changeCap(l,s,delta){if(viewMode)return;const arr=STRUCTURE[l];if(!arr)return;const i=s-1;if(i<0||i>=arr.length)return;const n=arr[i]+delta;if(n<1||n>20)return;arr[i]=n;save();render();}
+function changeCap(l,s,delta){if(viewMode)return;const arr=STRUCTURE[l];if(!arr)return;const i=s-1;if(i<0||i>=arr.length)return;const n=arr[i]+delta;if(n<1||n>40)return;arr[i]=n;save();render();}
+/* ---- 层架结构编辑 ---- */
+function levelKeys(){return Object.keys(STRUCTURE).map(Number).sort((a,b)=>a-b);}
+function unplaceLevel(l){allWines().forEach(w=>{const loc=effLoc(w);if(loc&&loc.split('-')[0]==String(l))state.moves[w._id]=null;});}
+function unplaceRow(l,s){allWines().forEach(w=>{const loc=effLoc(w);if(loc){const a=loc.split('-');if(a[0]==String(l)&&a[1]==String(s))state.moves[w._id]=null;}});}
+function addLevel(){if(viewMode)return;const ks=levelKeys();const l=ks.length?ks[ks.length-1]+1:1;STRUCTURE[l]=[6];save();render();}
+function removeLevel(l){if(viewMode)return;if(levelKeys().length<=1){alert('至少保留一层');return;}if(!confirm('删除第 '+l+' 层？里面的酒会被移到「还没归位」。'))return;unplaceLevel(l);delete STRUCTURE[l];STANDING=STANDING.filter(x=>x!=l);save();render();}
+function addRow(l){if(viewMode)return;if(!STRUCTURE[l])return;STRUCTURE[l].push(6);save();render();}
+function removeRow(l){if(viewMode)return;const arr=STRUCTURE[l];if(!arr)return;if(arr.length<=1){removeLevel(l);return;}unplaceRow(l,arr.length);arr.pop();save();render();}
+function toggleStanding(l){if(viewMode)return;l=+l;if(STANDING.includes(l))STANDING=STANDING.filter(x=>x!==l);else STANDING.push(l);save();render();}
 
 function lyingSVG(c){return `<svg viewBox="0 0 140 44" xmlns="http://www.w3.org/2000/svg">
 <g fill="none" stroke="#8a7a6a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
@@ -597,7 +630,9 @@ function render(){let html='';
       for(let k=arr.length;k<nominal;k++)slots+=`<div class="ph${vert?' vert':''}">${vert?emptyStanding():emptyLying()}</div>`;
       lanes+=`<div class="lane" data-lane="${lvl}-${s}"><div class="slots">${slots}</div><div class="shelfline"></div>${subs.length>1?`<div class="subtag">S${s} · 容量 ${nominal} <span class="cap-ctrl"><button onclick="changeCap(${lvl},${s},-1)">−</button><span>${nominal}</span><button onclick="changeCap(${lvl},${s},1)">+</button></span></div>`:`<div class="subtag">容量 ${nominal} <span class="cap-ctrl"><button onclick="changeCap(${lvl},${s},-1)">−</button><span>${nominal}</span><button onclick="changeCap(${lvl},${s},1)">+</button></span></div>`}</div>`;}
     const over=filled>cap;
-    html+=`<div class="shelf"><div class="shelf-hd"><span class="no">${String(lvl).padStart(2,'0')}</span><span class="ttl">第 ${lvl} 层${vert?' · 站立摆放':''}</span><span class="fill${over?' over':''}">${filled} / ${cap}</span></div>${lanes}</div>`;}
+    const editCtl=editStruct?`<span class="struct-ctl"><button onclick="addRow(${lvl})">＋行</button><button onclick="removeRow(${lvl})">－行</button><button class="${vert?'on':''}" onclick="toggleStanding(${lvl})">站立</button><button class="del" onclick="removeLevel(${lvl})">删层</button></span>`:'';
+    html+=`<div class="shelf"><div class="shelf-hd"><span class="no">${String(lvl).padStart(2,'0')}</span><span class="ttl">第 ${lvl} 层${vert?' · 站立摆放':''}</span><span class="fill${over?' over':''}">${filled} / ${cap}</span>${editCtl}</div>${lanes}</div>`;}
+  if(editStruct)html+=`<div class="add-level"><button onclick="addLevel()">＋ 添加一层</button><span>拖拽调整酒的位置在非编辑模式下进行；这里可改层数、每层排数、每排容量、是否站立摆放。</span></div>`;
   document.getElementById('shelves').innerHTML=html;
   const tray=allWines().filter(w=>!isFinished(w)&&!effLoc(w));
   document.getElementById('trayList').innerHTML=tray.length?tray.map(w=>cellHTML(w,false)).join(''):'<p style="color:var(--faint);font-style:italic;font-size:13px">都归位啦 ✿</p>';
@@ -665,14 +700,37 @@ document.body.addEventListener('click',e=>{const fin=e.target.closest('[data-fin
 
 const formScrim=document.getElementById('formScrim'),formCard=document.getElementById('formCard');
 function openForm(){if(viewMode)return;const opts=grapeOrder().map(g=>`<option value="${g}">${GRAPE[g].label}</option>`).join('');
-  formCard.innerHTML=`<button class="x" data-cform>×</button><h2>新增一瓶</h2><p>填好后它会出现在「还没归位」，再拖进柜子就行。</p>
-    <div class="field"><label>酒名 *</label><input id="f_winery" placeholder="如 Screaming Eagle / Chateau Palmer"></div>
+  let extra={};
+  formCard.innerHTML=`<button class="x" data-cform>×</button><h2>新增一瓶</h2><p>填酒名后点「🔎 联网查资料」自动补全评分/产区/品种/简介；也可手动填。加入后到「还没归位」再拖进柜子。</p>
+    <div class="field"><label>酒名 *</label><div class="frow" style="gap:8px;align-items:stretch"><input id="f_winery" placeholder="如 Screaming Eagle 2019"><button class="go" id="f_lookup" style="white-space:nowrap;flex:0 0 auto">🔎 联网查资料</button></div></div>
+    <div class="lookmsg" id="f_msg"></div>
     <div class="frow"><div class="field"><label>年份</label><input id="f_vintage" placeholder="2019" inputmode="numeric"></div><div class="field"><label>主要葡萄品种</label><select id="f_grape">${opts}</select></div></div>
     <div class="frow"><div class="field"><label>国家</label><input id="f_country" placeholder="France / USA…"></div><div class="field"><label>产区</label><input id="f_region" placeholder="如 Napa Valley"></div></div>
     <div class="field"><label>混酿比例（可选）</label><input id="f_graw" placeholder="如 60% Cabernet, 40% Merlot"></div>
     <button class="go" id="f_go">加入酒柜</button>`;
-  formCard.querySelector('#f_go').addEventListener('click',()=>{const winery=formCard.querySelector('#f_winery').value.trim();if(!winery){formCard.querySelector('#f_winery').focus();return;}const vRaw=formCard.querySelector('#f_vintage').value.trim();
-    state.added.push({_id:'u'+Date.now(),winery,name:null,vintage:vRaw?(parseInt(vRaw,10)||vRaw):null,grape:formCard.querySelector('#f_grape').value,grapeRaw:formCard.querySelector('#f_graw').value.trim()||null,country:formCard.querySelector('#f_country').value.trim()||null,region:formCard.querySelector('#f_region').value.trim()||null,loc:null,vivino:null,vest:false,bottle:null,rp:null,ws:null,price:null});
+  const q=id=>formCard.querySelector(id);
+  q('#f_lookup').addEventListener('click',async()=>{
+    const name=q('#f_winery').value.trim();if(!name){q('#f_winery').focus();return;}
+    const msg=q('#f_msg');msg.textContent='联网查询中…（约 10 秒，请稍候）';q('#f_lookup').disabled=true;
+    try{
+      const vintage=q('#f_vintage').value.trim();
+      const {data,error}=await window.sb.functions.invoke('wine-lookup',{body:{name,vintage:vintage||null}});
+      if(error)throw error;
+      if(data&&data.wine){const w=data.wine;
+        if(w.winery)q('#f_winery').value=w.winery;
+        if(w.vintage)q('#f_vintage').value=w.vintage;
+        if(w.grape&&GRAPE[w.grape])q('#f_grape').value=w.grape;
+        if(w.country)q('#f_country').value=w.country;
+        if(w.region)q('#f_region').value=w.region;
+        if(w.grapeRaw)q('#f_graw').value=w.grapeRaw;
+        extra={rp:w.rp??null,ws:w.ws??null,price:w.price??null,vivino:w.vivino??null,desc:w.desc||null};
+        msg.textContent='已自动填好，检查无误后点「加入酒柜」✓';
+      }else{msg.textContent='没查到可靠资料，请手动填'+((data&&data.error)?'（'+data.error+'）':'');}
+    }catch(ex){msg.textContent='查询失败，可手动填（确认已部署 wine-lookup 函数并配置密钥）：'+(ex.message||ex);}
+    q('#f_lookup').disabled=false;
+  });
+  q('#f_go').addEventListener('click',()=>{const winery=q('#f_winery').value.trim();if(!winery){q('#f_winery').focus();return;}const vRaw=q('#f_vintage').value.trim();
+    state.added.push(Object.assign({_id:'u'+Date.now(),winery,name:null,vintage:vRaw?(parseInt(vRaw,10)||vRaw):null,grape:q('#f_grape').value,grapeRaw:q('#f_graw').value.trim()||null,country:q('#f_country').value.trim()||null,region:q('#f_region').value.trim()||null,loc:null,vivino:null,vest:false,bottle:null,rp:null,ws:null,price:null,desc:null},extra));
     save();buildLegend();buildCountryFilter();wireCountry();render();closeForm();document.getElementById('trayZone').scrollIntoView({behavior:'smooth',block:'center'});});
   formScrim.classList.add('show');}
 window.closeForm=()=>formScrim.classList.remove('show');
@@ -707,8 +765,9 @@ document.getElementById('importFile').addEventListener('change',e=>{const f=e.ta
 const CONFIGURED = !/YOUR-PROJECT|YOUR-ANON-KEY/.test(SUPABASE_URL+SUPABASE_ANON_KEY);
 window.sb = CONFIGURED ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let currentUser=null, myCellarVisibility='private';
+let currentUser=null, myCellarVisibility='private', myCellars=[], editStruct=false;
 const $=id=>document.getElementById(id);
+function newCellarPayload(){return {base:[],state:blankState(),structure:JSON.parse(JSON.stringify(STRUCTURE_DEFAULT)),standing:[]};}
 
 /* ---- 登录 / 注册 界面 ---- */
 (function(){
@@ -754,29 +813,78 @@ const $=id=>document.getElementById(id);
 })();
 
 /* ---- 加载自己的酒柜 ---- */
-async function loadCellar(){
-  viewMode=false;$('viewBar').classList.remove('show');
+async function loadCellar(preferId){
+  viewMode=false;editStruct=false;$('viewBar').classList.remove('show');
   setSync('加载中…');
   const uid=currentUser.id;
-  let {data:cells}=await window.sb.from('cellars').select('*').eq('user_id',uid).order('created_at').limit(1);
-  let cell=cells&&cells[0];
-  if(!cell){
-    const {data:created,error}=await window.sb.from('cellars')
-      .insert({user_id:uid,name:'我的酒柜',payload:{base:[],state:blankState(),structure:JSON.parse(JSON.stringify(STRUCTURE_BASE))}})
-      .select().single();
-    if(error){setSync('加载失败 ⚠');alert('创建酒柜失败：'+error.message+'\n请确认已在 Supabase 跑过 schema.sql');return;}
-    cell=created;
+  let {data:cells,error}=await window.sb.from('cellars').select('*').eq('user_id',uid).order('created_at');
+  if(error){setSync('加载失败 ⚠');alert('读取酒柜失败：'+error.message+'\n请确认已在 Supabase 跑过 schema.sql');return;}
+  if(!cells||!cells.length){
+    const {data:created,err}=await window.sb.from('cellars')
+      .insert({user_id:uid,name:'我的酒柜',payload:newCellarPayload()}).select().single();
+    if(err){setSync('加载失败 ⚠');alert('创建酒柜失败：'+err.message);return;}
+    cells=[created];
   }
+  myCellars=cells;
+  let cell=cells.find(c=>c.id===preferId)||cells[0];
   currentCellarId=cell.id;
   myCellarVisibility=cell.visibility||'private';
   $('visSelect').value=myCellarVisibility;
   applyPayload(cell.payload);
+  renderCellarBar();
   boot();
   setSync('已同步 ✓');
 }
 
+function renderCellarBar(){
+  const sel=$('cellarSelect');
+  sel.innerHTML=myCellars.map(c=>`<option value="${c.id}"${c.id===currentCellarId?' selected':''}>${esc(c.name||'酒柜')}</option>`).join('');
+  const cur=myCellars.find(c=>c.id===currentCellarId);
+  $('cellarTitle').textContent=(cur&&cur.name)||'Wine Cellar';
+  $('editStructBtn').classList.remove('on');
+}
+
+async function switchCellar(id){
+  if(id===currentCellarId)return;
+  await flushSave();
+  loadCellar(id);
+}
+async function newCellarAction(){
+  const name=(prompt('新酒柜的名字？（例如：日常冰箱、办公室小柜、朋友的酒窖）','我的新酒柜')||'').trim();
+  if(!name)return;
+  await flushSave();
+  const {data:created,error}=await window.sb.from('cellars')
+    .insert({user_id:currentUser.id,name,payload:newCellarPayload()}).select().single();
+  if(error){alert('创建失败：'+error.message);return;}
+  loadCellar(created.id);
+}
+async function renameCellarAction(){
+  const cur=myCellars.find(c=>c.id===currentCellarId);if(!cur)return;
+  const name=(prompt('给这个酒柜改个名字：',cur.name||'')||'').trim();
+  if(!name||name===cur.name)return;
+  const {error}=await window.sb.from('cellars').update({name}).eq('id',currentCellarId);
+  if(error){alert('改名失败：'+error.message);return;}
+  cur.name=name;renderCellarBar();
+}
+async function deleteCellarAction(){
+  if(myCellars.length<=1){alert('至少要保留一个酒柜～');return;}
+  const cur=myCellars.find(c=>c.id===currentCellarId);
+  if(!confirm(`确定删除酒柜「${cur.name}」？里面的酒和记录都会一起删除，且无法恢复。`))return;
+  const {error}=await window.sb.from('cellars').delete().eq('id',currentCellarId);
+  if(error){alert('删除失败：'+error.message);return;}
+  loadCellar();
+}
+
 /* ---- 顶部账户控件 ---- */
 $('logoutBtn').onclick=async()=>{await flushSave();if(window.sb){await window.sb.auth.signOut();}location.reload();};
+$('cellarSelect').onchange=e=>switchCellar(e.target.value);
+$('newCellarBtn').onclick=newCellarAction;
+$('renameCellarBtn').onclick=renameCellarAction;
+$('delCellarBtn').onclick=deleteCellarAction;
+$('cellarTitle').onclick=()=>{if(!viewMode&&currentCellarId)renameCellarAction();};
+$('cellarTitle').style.cursor='pointer';$('cellarTitle').title='点击可改名';
+$('editStructBtn').onclick=()=>{if(viewMode)return;editStruct=!editStruct;$('editStructBtn').classList.toggle('on',editStruct);render();
+  document.getElementById('shelves').scrollIntoView({behavior:'smooth',block:'start'});};
 $('visSelect').onchange=async e=>{
   if(viewMode){e.target.value=myCellarVisibility;return;}
   const v=e.target.value;
@@ -865,6 +973,7 @@ async function viewFriendCellar(friendId,name){
   viewMode=true;currentCellarId=null;
   applyPayload(cell.payload);
   boot();
+  $('cellarTitle').textContent=name+' 的酒柜';
   $('viewBarText').textContent=`👀 正在参观 ${name} 的酒柜（只读）`;
   $('viewBar').classList.add('show');
   setSync('');
