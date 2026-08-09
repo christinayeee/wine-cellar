@@ -101,32 +101,32 @@ Supabase 里的 **Authentication → URL Configuration**，把你的正式域名
 - 这样你可以建各种不同的酒柜：几瓶酒的「日常冰箱」（如一层一排）、几层的小酒架、或多层大酒窖。新酒柜默认是简单的 3 层。
 - 调整结构时，如果某层/某排被删掉，里面的酒会自动回到「还没归位」，不会丢。
 
-## 3. 新增酒时自动联网查资料（需部署一个函数）
+## 3. 新增酒时自动填资料（用 DeepSeek，需部署一个函数）
 
-新增酒的弹窗里有 **「🔎 联网查资料」** 按钮：填好酒名点一下，它会**联网搜索**这瓶酒的真实产区、国家、葡萄品种、混酿比例、RP/WS/Vivino 评分、参考价和一句话简介，自动填进表单。任何用户新增酒都能用。
+新增酒的弹窗里有 **「🔎 自动填资料」** 按钮：填好酒名点一下，它会用 **DeepSeek** 补全这瓶酒的产区、国家、葡萄品种、混酿比例、RP/WS/Vivino 评分、参考价和一句话简介，自动填进表单。任何用户新增酒都能用。
 
-它背后是一个 **Supabase Edge Function（`supabase/functions/wine-lookup`）**，用 Claude 的联网搜索能力查证信息，API 密钥只存在服务端。部署一次即可：
+它背后是一个 **Supabase Edge Function（`supabase/functions/wine-lookup`）**，调用 DeepSeek 的 API，密钥只存在服务端。部署一次即可：
 
-**准备：** 安装 Supabase CLI（`npm i -g supabase`，或见官网），并有一个 [Anthropic API key](https://console.anthropic.com/)。
+**准备：** 安装 Supabase CLI（`npm i -g supabase`，或见官网），并有一个 [DeepSeek API key](https://platform.deepseek.com/)（在 DeepSeek 开放平台创建）。
 
 ```bash
 # 在仓库根目录
 supabase login
-supabase link --project-ref <你的项目ref>        # ref 在 Supabase 项目 URL 里，如 abcdefgh
+supabase link --project-ref rnkgzddyvchstniawumj      # ref 就是你项目 URL 里那串
 
-# 把 Anthropic 密钥存到服务端（不会进前端）
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-你的key
+# 把 DeepSeek 密钥存到服务端（不会进前端）
+supabase secrets set DEEPSEEK_API_KEY=sk-你的deepseek密钥
 
 # 部署函数
 supabase functions deploy wine-lookup
 ```
 
-部署好后，前端的「🔎 联网查资料」就能用了（前端已经接好，不用再改代码）。
+部署好后，前端的「🔎 自动填资料」就能用了（前端已经接好，不用再改代码）。
 
-**成本提示：** 每次查询会调用一次带联网搜索的 Claude（默认用 `claude-opus-5`，最准）。想省钱可以把 `supabase/functions/wine-lookup/index.ts` 里的 `const MODEL = "claude-opus-5"` 改成 `"claude-sonnet-5"`（更便宜，同样支持联网搜索），改完重新 `supabase functions deploy wine-lookup`。
+**关于准确度：** DeepSeek 的 API **没有实时联网搜索**，返回的是模型自身知识里的资料——对知名酒庄比较准，对冷门酒、极新年份或"实时价格"可能不知道（会返回空，需你手动补）。想换更强的模型可把 `supabase/functions/wine-lookup/index.ts` 里的 `const MODEL = "deepseek-chat"` 改成 `"deepseek-reasoner"`，重新 `supabase functions deploy wine-lookup`。
 
 **没部署也不影响用**：不部署这个函数，新增酒时手动填字段照样能加，只是没有「自动填充」而已。
 
 ## 关于安全
-- 联网查资料的 Anthropic 密钥用 `supabase secrets set` 存在服务端，**不在前端**，安全。
+- 自动填资料的 DeepSeek 密钥用 `supabase secrets set` 存在服务端，**不在前端**，安全。
 - 好友只读参观：编辑控件（新增/评分/拖拽/结构）在参观别人酒柜时会自动隐藏，且数据库 RLS 也不允许改别人的酒柜。

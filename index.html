@@ -701,8 +701,8 @@ document.body.addEventListener('click',e=>{const fin=e.target.closest('[data-fin
 const formScrim=document.getElementById('formScrim'),formCard=document.getElementById('formCard');
 function openForm(){if(viewMode)return;const opts=grapeOrder().map(g=>`<option value="${g}">${GRAPE[g].label}</option>`).join('');
   let extra={};
-  formCard.innerHTML=`<button class="x" data-cform>×</button><h2>新增一瓶</h2><p>填酒名后点「🔎 联网查资料」自动补全评分/产区/品种/简介；也可手动填。加入后到「还没归位」再拖进柜子。</p>
-    <div class="field"><label>酒名 *</label><div class="frow" style="gap:8px;align-items:stretch"><input id="f_winery" placeholder="如 Screaming Eagle 2019"><button class="go" id="f_lookup" style="white-space:nowrap;flex:0 0 auto">🔎 联网查资料</button></div></div>
+  formCard.innerHTML=`<button class="x" data-cform>×</button><h2>新增一瓶</h2><p>填酒名后点「🔎 自动填资料」补全评分/产区/品种/简介；也可手动填。加入后到「还没归位」再拖进柜子。</p>
+    <div class="field"><label>酒名 *</label><div class="frow" style="gap:8px;align-items:stretch"><input id="f_winery" placeholder="如 Screaming Eagle 2019"><button class="go" id="f_lookup" style="white-space:nowrap;flex:0 0 auto">🔎 自动填资料</button></div></div>
     <div class="lookmsg" id="f_msg"></div>
     <div class="frow"><div class="field"><label>年份</label><input id="f_vintage" placeholder="2019" inputmode="numeric"></div><div class="field"><label>主要葡萄品种</label><select id="f_grape">${opts}</select></div></div>
     <div class="frow"><div class="field"><label>国家</label><input id="f_country" placeholder="France / USA…"></div><div class="field"><label>产区</label><input id="f_region" placeholder="如 Napa Valley"></div></div>
@@ -711,7 +711,7 @@ function openForm(){if(viewMode)return;const opts=grapeOrder().map(g=>`<option v
   const q=id=>formCard.querySelector(id);
   q('#f_lookup').addEventListener('click',async()=>{
     const name=q('#f_winery').value.trim();if(!name){q('#f_winery').focus();return;}
-    const msg=q('#f_msg');msg.textContent='联网查询中…（约 10 秒，请稍候）';q('#f_lookup').disabled=true;
+    const msg=q('#f_msg');msg.textContent='查询中…（几秒钟，请稍候）';q('#f_lookup').disabled=true;
     try{
       const vintage=q('#f_vintage').value.trim();
       const {data,error}=await window.sb.functions.invoke('wine-lookup',{body:{name,vintage:vintage||null}});
